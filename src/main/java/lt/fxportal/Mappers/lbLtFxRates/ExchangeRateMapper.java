@@ -6,9 +6,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import lt.fxportal.API.DTOs.ExchangeRateDTO;
 import lt.fxportal.API.DTOs.lbLtFxRates.CurrencyAmount;
 import lt.fxportal.API.DTOs.lbLtFxRates.DailyFxRate;
 import lt.fxportal.Domain.Entities.ExchangeRate;
