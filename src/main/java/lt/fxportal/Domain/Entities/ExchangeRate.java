@@ -8,7 +8,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Index;
 import jakarta.persistence.UniqueConstraint;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +21,10 @@ import lombok.Data;
 @Entity
 @Table(
     name = "exchange_rate_to_eur",
+    indexes = {
+        @Index(name = "idx_currency_code", columnList = "currency_code"),
+        @Index(name = "idx_date", columnList = "date")
+    },
     uniqueConstraints = {
         @UniqueConstraint(columnNames = {"currency_code", "date"})
     }

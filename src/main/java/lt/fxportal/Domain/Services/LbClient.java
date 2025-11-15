@@ -1,6 +1,9 @@
 package lt.fxportal.Domain.Services;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -11,6 +14,7 @@ import lt.fxportal.API.DTOs.lbLtFxRates.CurrencyData;
 import lt.fxportal.API.DTOs.lbLtFxRates.CurrencyList;
 import lt.fxportal.API.DTOs.lbLtFxRates.DailyFxRate;
 import lt.fxportal.API.DTOs.lbLtFxRates.DailyFxRateList;
+
 
 @Service
 public class LbClient {
@@ -40,4 +44,21 @@ public class LbClient {
 
         return dailyFxRateList.getDailyFxRates();
     }
+
+    public List<DailyFxRate> getFxRatesForCurrency(String currencyCode, LocalDate from, LocalDate to) throws Exception {
+        String url = String.format("%s/getFxRatesForCurrency?tp=EU&ccy=%s&dtFrom=%s&dtTo=%s",
+                BASE_URL, currencyCode, from.toString(), to.toString());
+        System.out.println("Fetching FX rates from URL: " + url);
+        String xml = restTemplate.getForObject(url, String.class);
+
+        if (xml.contains("No data")) {
+            System.out.println("No data found for currency " + currencyCode + ". Skipping.");
+            return Collections.emptyList();
+        }
+
+        DailyFxRateList dailyFxRateList = xmlMapper.readValue(xml, DailyFxRateList.class);
+        return dailyFxRateList.getDailyFxRates();
+    }
+
+    
 }

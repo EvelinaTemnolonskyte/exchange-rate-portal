@@ -38,6 +38,13 @@ public class CurrencyService {
     public List<Currency> getAllCurrencies() {
         return currencyRepository.findAll();
     }
+
+    public List<String> getAllCurrencyCodes() {
+        return currencyRepository.findAll().stream()
+                .map(c -> c.getCode())
+                .toList();
+    }
+
 }
 
 

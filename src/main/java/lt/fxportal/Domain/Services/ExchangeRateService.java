@@ -1,5 +1,6 @@
 package lt.fxportal.Domain.Services;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -18,10 +19,8 @@ public class ExchangeRateService {
 
     private final IExchangeRateRepository exchangeRateRepository;
     private final ExchangeRateMapper mapper;
+    private final LbClient lbClient;
 
-    /**
-     * Save list of exchange rates directly from XML entities
-     */
     @Transactional
     public void saveAllRates(List<DailyFxRate> dailyFxRates) {
         List<ExchangeRate> entities = mapper.toEntityList(dailyFxRates);
@@ -33,9 +32,17 @@ public class ExchangeRateService {
         exchangeRateRepository.saveAll(newRates);
     }
 
-    /**
-     * Fetch all rates from DB
-     */
+    @Transactional
+    public void fetchAndSaveFxRatesHistory(int monthsBack, List<String> currencyCodes) throws Exception {
+        LocalDate today = LocalDate.now();
+        LocalDate from = today.minusMonths(monthsBack);
+
+        for (String code : currencyCodes) {
+            List<DailyFxRate> fxRates = lbClient.getFxRatesForCurrency(code, from, today);
+            saveAllRates(fxRates); 
+        }
+    }
+
     public List<ExchangeRate> getAllRates() {
         return exchangeRateRepository.findAll();
     }

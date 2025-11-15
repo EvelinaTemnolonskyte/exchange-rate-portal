@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 @JacksonXmlRootElement(localName = "FxRate")
 public class DailyFxRate {
-
+    
     @JacksonXmlProperty(localName = "Dt")
     private String date;
 
