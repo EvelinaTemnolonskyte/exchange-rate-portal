@@ -7,10 +7,10 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
-import lt.fxportal.API.DTOs.ExchangeRateDTO;
 import lt.fxportal.API.DTOs.lbLtFxRates.CurrencyData;
 import lt.fxportal.API.DTOs.lbLtFxRates.CurrencyList;
-import lt.fxportal.Domain.Entities.DailyFxRateList;
+import lt.fxportal.API.DTOs.lbLtFxRates.DailyFxRate;
+import lt.fxportal.API.DTOs.lbLtFxRates.DailyFxRateList;
 
 @Service
 public class LbClient {
@@ -32,22 +32,12 @@ public class LbClient {
         return currencyList.getCcyNtry();
     }
 
-    public List<ExchangeRateDTO> getCurrentRates() throws Exception {
+    public List<DailyFxRate> getCurrentFxRatesXml() throws Exception {
         String url = BASE_URL + "/getCurrentFxRates?tp=EU";
         String xml = restTemplate.getForObject(url, String.class);
 
         DailyFxRateList dailyFxRateList = xmlMapper.readValue(xml, DailyFxRateList.class);
 
-        return dailyFxRateList.getDailyFxRates().stream()
-            .flatMap(daily -> daily.getCurrencyAmounts().stream()
-                .filter(ca -> !ca.getCurrencyCode().equals("EUR")) // skip EUR as base
-                .map(ca -> ExchangeRateDTO.builder()
-                        .currencyCode(ca.getCurrencyCode())
-                        .rate(ca.getAmount())
-                        .date(daily.getDate())
-                        .build()
-                )
-            )
-            .toList();
+        return dailyFxRateList.getDailyFxRates();
     }
 }

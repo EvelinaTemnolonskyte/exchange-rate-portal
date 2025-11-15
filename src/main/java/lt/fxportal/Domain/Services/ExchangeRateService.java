@@ -5,13 +5,12 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lt.fxportal.API.DTOs.ExchangeRateDTO;
+import lt.fxportal.API.DTOs.lbLtFxRates.DailyFxRate;
 import lt.fxportal.Domain.Entities.ExchangeRate;
-import lt.fxportal.Mappers.ExchangeRateMapper;
+import lt.fxportal.Mappers.lbLtFxRates.ExchangeRateMapper;
 import lt.fxportal.Repositories.IExchangeRateRepository;
+
 
 @Service
 @AllArgsConstructor
@@ -20,25 +19,24 @@ public class ExchangeRateService {
     private final IExchangeRateRepository exchangeRateRepository;
     private final ExchangeRateMapper mapper;
 
+    /**
+     * Save list of exchange rates directly from XML entities
+     */
     @Transactional
-    public ExchangeRateDTO saveExchangeRate(@NotNull @Valid ExchangeRateDTO dto) {
-        ExchangeRate entity = mapper.toExchangeRate(dto);
-        ExchangeRate saved = exchangeRateRepository.save(entity);
-        return mapper.toExchangeRateDTO(saved);
+    public void saveAllRates(List<DailyFxRate> dailyFxRates) {
+        List<ExchangeRate> entities = mapper.toEntityList(dailyFxRates);
+
+        List<ExchangeRate> newRates = entities.stream()
+                .filter(rate -> !exchangeRateRepository.existsByCurrencyCodeAndDate(rate.getCurrencyCode(), rate.getDate()))
+                .toList();
+
+        exchangeRateRepository.saveAll(newRates);
     }
 
-    @Transactional
-    public void saveAllRates(List<ExchangeRateDTO> dtos) {
-        List<ExchangeRate> entities = dtos.stream()
-            .map(mapper::toExchangeRate)
-            .filter(rate -> !exchangeRateRepository.existsByCurrencyCodeAndDate(rate.getCurrencyCode(), rate.getDate()))
-            .toList();
-
-        exchangeRateRepository.saveAll(entities);
-    }
-
-
-    public List<ExchangeRateDTO> getAllRates() {
-        return mapper.toExchangeRateDTOList(exchangeRateRepository.findAll());
+    /**
+     * Fetch all rates from DB
+     */
+    public List<ExchangeRate> getAllRates() {
+        return exchangeRateRepository.findAll();
     }
 }

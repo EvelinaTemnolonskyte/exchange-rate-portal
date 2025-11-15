@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.AllArgsConstructor;
 import lt.fxportal.API.DTOs.ExchangeRateDTO;
+import lt.fxportal.API.DTOs.lbLtFxRates.DailyFxRate;
 import lt.fxportal.Domain.Services.LbClient;
 
 @AllArgsConstructor
@@ -18,8 +19,8 @@ public class ExchangeRateController {
     private final LbClient lbClient;
 
     @GetMapping(produces = "application/json")
-    public List<ExchangeRateDTO> getRates() throws Exception {
-        return lbClient.getCurrentRates();
+    public List<DailyFxRate> getRates() throws Exception {
+        return lbClient.getCurrentFxRatesXml();
     }
 }
 
