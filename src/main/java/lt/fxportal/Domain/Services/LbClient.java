@@ -8,7 +8,7 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 import lt.fxportal.API.DTOs.ExchangeRateDTO;
-import lt.fxportal.Domain.Entities.Currency;
+import lt.fxportal.Domain.Entities.CurrencyData;
 import lt.fxportal.Domain.Entities.CurrencyList;
 import lt.fxportal.Domain.Entities.DailyFxRateList;
 
@@ -25,7 +25,7 @@ public class LbClient {
     }
 
     
-    public List<Currency> getCurrencyListXml() throws Exception {
+    public List<CurrencyData> getCurrencyListXml() throws Exception {
         String url = BASE_URL + "/getCurrencyList";
         String xml = restTemplate.getForObject(url, String.class);
         CurrencyList currencyList = xmlMapper.readValue(xml, CurrencyList.class);

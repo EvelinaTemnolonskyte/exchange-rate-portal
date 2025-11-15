@@ -12,5 +12,5 @@ import lombok.Data;
 public class CurrencyList {
     
     @JacksonXmlElementWrapper(useWrapping = false)
-    List<Currency> CcyNtry; 
+    List<CurrencyData> CcyNtry; 
 }

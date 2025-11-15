@@ -1,29 +1,33 @@
 package lt.fxportal.Domain.Entities;
 
-import java.util.List;
-
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 
 @Data
-@JacksonXmlRootElement(localName = "CcyNtry")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "currencies")
 public class Currency {
 
-    @JacksonXmlProperty(localName = "Ccy")
+    @Id
+    @Column(name = "code", nullable = false, length = 3)
     private String code;
 
-    @JacksonXmlElementWrapper(useWrapping = false)
-    @JacksonXmlProperty(localName = "CcyNm")
-    private List<CurrencyName> names;
+    @Column(name = "name_en", nullable = false)
+    private String nameEn;
 
-
-    @JacksonXmlProperty(localName = "CcyNbr")
+    @Column(name = "num_code")
     private String numCode;
 
-    @JacksonXmlProperty(localName = "CcyMnrUnts")
-    private int decimals; 
-
+    @Column(name = "decimals")
+    private Integer decimals;
 }
