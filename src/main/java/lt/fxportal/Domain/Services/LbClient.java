@@ -22,9 +22,9 @@ public class LbClient {
     private final RestTemplate restTemplate;
     private final XmlMapper xmlMapper;
 
-    public LbClient() {
-        this.restTemplate = new RestTemplate();
-        this.xmlMapper = new XmlMapper();
+    public LbClient(RestTemplate restTemplate, XmlMapper xmlMapper) {
+        this.restTemplate = restTemplate;
+        this.xmlMapper = xmlMapper;
     }
 
     
