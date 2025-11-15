@@ -1,4 +1,4 @@
-package lt.fxportal.Domain.Entities;
+package lt.fxportal.API.DTOs.lbLtFxRates;
 
 import java.util.List;
 

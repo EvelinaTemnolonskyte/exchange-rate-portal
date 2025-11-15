@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Data;
+import lt.fxportal.API.DTOs.lbLtFxRates.CurrencyAmount;
 
 @Data
 @JacksonXmlRootElement(localName = "FxRate")
