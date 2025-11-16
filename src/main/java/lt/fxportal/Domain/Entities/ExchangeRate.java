@@ -9,6 +9,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.UniqueConstraint;
 
 import lombok.AllArgsConstructor;
@@ -35,8 +37,9 @@ public class ExchangeRate {
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "currency_code", nullable = false)
-    private String currencyCode;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "currency_code", nullable = false)
+    private Currency currency;
 
     @Column(name = "date", nullable = false)
     private LocalDate date;

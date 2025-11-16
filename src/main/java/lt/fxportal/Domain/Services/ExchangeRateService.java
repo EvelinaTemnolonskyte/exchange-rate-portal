@@ -26,9 +26,10 @@ public class ExchangeRateService {
         List<ExchangeRate> entities = mapper.toEntityList(dailyFxRates);
 
         List<ExchangeRate> newRates = entities.stream()
-                .filter(rate -> !exchangeRateRepository.existsByCurrencyCodeAndDate(rate.getCurrencyCode(), rate.getDate()))
-                .toList();
-
+            .filter(rate -> !exchangeRateRepository
+                    .existsByCurrency_CodeAndDate(rate.getCurrency().getCode(), rate.getDate()))
+            .toList();
+            
         exchangeRateRepository.saveAll(newRates);
     }
 

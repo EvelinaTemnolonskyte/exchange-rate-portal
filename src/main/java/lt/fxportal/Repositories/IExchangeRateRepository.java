@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import lt.fxportal.Domain.Entities.ExchangeRate;
 
 public interface IExchangeRateRepository extends JpaRepository<ExchangeRate, UUID>{
-    boolean existsByCurrencyCodeAndDate(String currencyCode, LocalDate date);
+    boolean existsByCurrency_CodeAndDate(String currencyCode, LocalDate date);
 }
