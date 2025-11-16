@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Collections;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -21,6 +23,8 @@ public class LbClient {
     private static final String BASE_URL = "https://www.lb.lt/webservices/FxRates/FxRates.asmx";
     private final RestTemplate restTemplate;
     private final XmlMapper xmlMapper;
+    private static final Logger logger = LoggerFactory.getLogger(LbClient.class);
+
 
     public LbClient(RestTemplate restTemplate, XmlMapper xmlMapper) {
         this.restTemplate = restTemplate;
@@ -30,34 +34,41 @@ public class LbClient {
     
     public List<CurrencyData> getCurrencyListXml() throws Exception {
         String url = BASE_URL + "/getCurrencyList";
+        logger.info("Fetching currency list from URL: {}", url);
+
         String xml = restTemplate.getForObject(url, String.class);
         CurrencyList currencyList = xmlMapper.readValue(xml, CurrencyList.class);
+        
+        logger.info("Fetched {} currencies", currencyList.getCcyNtry().size());
+
         return currencyList.getCcyNtry();
     }
 
     public List<DailyFxRate> getCurrentFxRatesXml() throws Exception {
         String url = BASE_URL + "/getCurrentFxRates?tp=EU";
+        logger.info("Fetching current FX rates from URL: {}", url);
+
         String xml = restTemplate.getForObject(url, String.class);
-
         DailyFxRateList dailyFxRateList = xmlMapper.readValue(xml, DailyFxRateList.class);
-
+        
+        logger.info("Fetched {} daily FX rates", dailyFxRateList.getDailyFxRates().size());
         return dailyFxRateList.getDailyFxRates();
     }
 
     public List<DailyFxRate> getFxRatesForCurrency(String currencyCode, LocalDate from, LocalDate to) throws Exception {
         String url = String.format("%s/getFxRatesForCurrency?tp=EU&ccy=%s&dtFrom=%s&dtTo=%s",
                 BASE_URL, currencyCode, from.toString(), to.toString());
-        System.out.println("Fetching FX rates from URL: " + url);
-        String xml = restTemplate.getForObject(url, String.class);
+        logger.info("Fetching FX rates for {} from URL: {}", currencyCode, url);
 
+        String xml = restTemplate.getForObject(url, String.class);
         if (xml.contains("No data")) {
-            System.out.println("No data found for currency " + currencyCode + ". Skipping.");
+            logger.warn("No data found for currency {}. Skipping.", currencyCode);
             return Collections.emptyList();
         }
 
         DailyFxRateList dailyFxRateList = xmlMapper.readValue(xml, DailyFxRateList.class);
+        logger.info("Fetched {} FX rates for {}", dailyFxRateList.getDailyFxRates().size(), currencyCode);
         return dailyFxRateList.getDailyFxRates();
     }
-
-    
+  
 }

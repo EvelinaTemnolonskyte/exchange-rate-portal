@@ -29,20 +29,21 @@ public class ExchangeRateService {
             .filter(rate -> !exchangeRateRepository
                     .existsByCurrency_CodeAndDate(rate.getCurrency().getCode(), rate.getDate()))
             .toList();
-            
+
         exchangeRateRepository.saveAll(newRates);
     }
 
     @Transactional
-    public void fetchAndSaveFxRatesHistory(int monthsBack, List<String> currencyCodes) throws Exception {
+    public void fetchAndSaveFxRatesHistory(int daysBack, List<String> currencyCodes) throws Exception {
         LocalDate today = LocalDate.now();
-        LocalDate from = today.minusMonths(monthsBack);
-
+        LocalDate from = today.minusDays(daysBack); 
+        
         for (String code : currencyCodes) {
             List<DailyFxRate> fxRates = lbClient.getFxRatesForCurrency(code, from, today);
             saveAllRates(fxRates); 
         }
     }
+
 
     public List<ExchangeRate> getAllRates() {
         return exchangeRateRepository.findAll();

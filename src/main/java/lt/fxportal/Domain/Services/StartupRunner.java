@@ -2,6 +2,9 @@ package lt.fxportal.Domain.Services;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -11,6 +14,7 @@ import lombok.AllArgsConstructor;
 @Component
 @AllArgsConstructor
 public class StartupRunner {
+    private static final Logger logger = LoggerFactory.getLogger(StartupRunner.class);
 
     private final CurrencyService currencyService;
     private final ExchangeRateService exchangeRateService;
@@ -19,12 +23,13 @@ public class StartupRunner {
     public void runAfterStartup() {
         try {
             currencyService.fetchAndSaveCurrencies();
-            System.out.println("Currencies loaded on startup.");
+            logger.info("Currencies loaded on startup.");
+
             List<String> currencyCodes = currencyService.getAllCurrencyCodes();
-            exchangeRateService.fetchAndSaveFxRatesHistory(3, currencyCodes);
-            System.out.println("Initial FX rates for past 3 months saved.");
+            exchangeRateService.fetchAndSaveFxRatesHistory(7, currencyCodes);
+            logger.info("Initial FX rates for past 7 days saved.");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error during startup runner execution: {}", e.getMessage(), e);
         }
     }
 

@@ -10,12 +10,19 @@ import lt.fxportal.API.DTOs.lbLtFxRates.DailyFxRate;
 
 @Service
 @AllArgsConstructor
-public class DailyFxRateScheduler {
+public class Scheduler {
 
     private final LbClient lbClient;
     private final ExchangeRateService exchangeRateService;
+    private final CurrencyService currencyService;
 
-    @Scheduled(cron = "*/60 * * * * *") // every minute for testing
+    @Scheduled(cron = "0 0 1 * * *")
+    public void updateCurrenciesDaily() throws Exception {
+        currencyService.fetchAndSaveCurrencies();
+        System.out.println("Currencies updated from LB.");
+    }
+    
+    @Scheduled(cron = "*/60 * * * * *") 
     public void fetchAndSaveDailyRates() throws Exception {
         List<DailyFxRate> dailyRates = lbClient.getCurrentFxRatesXml();
         exchangeRateService.saveAllRates(dailyRates);
