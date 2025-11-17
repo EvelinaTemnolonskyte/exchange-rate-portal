@@ -18,10 +18,10 @@ import lt.fxportal.Repositories.ICurrencyRepository;
 
 @Component
 @AllArgsConstructor
-public class ExchangeRateMapper {
+public class LbExchangeRateMapper {
 
     private final ICurrencyRepository currencyRepository;
-    private static final Logger log = LoggerFactory.getLogger(ExchangeRateMapper.class);
+    private static final Logger log = LoggerFactory.getLogger(LbExchangeRateMapper.class);
 
     public Optional<ExchangeRate> toEntity(CurrencyAmount currencyAmount, String date) {
         return currencyRepository.findById(currencyAmount.getCurrencyCode())

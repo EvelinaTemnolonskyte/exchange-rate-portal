@@ -1,4 +1,4 @@
-package lt.fxportal.Domain.Services;
+package lt.fxportal.InfrastructureServices;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -55,7 +55,7 @@ public class LbClient {
         return dailyFxRateList.getDailyFxRates();
     }
 
-    public List<DailyFxRate> getFxRatesForCurrency(String currencyCode, LocalDate from, LocalDate to) throws Exception {
+    /*public List<DailyFxRate> getFxRatesForCurrency(String currencyCode, LocalDate from, LocalDate to) throws Exception {
         String url = String.format("%s/getFxRatesForCurrency?tp=EU&ccy=%s&dtFrom=%s&dtTo=%s",
                 BASE_URL, currencyCode, from.toString(), to.toString());
         logger.info("Fetching FX rates for {} from URL: {}", currencyCode, url);
@@ -69,6 +69,6 @@ public class LbClient {
         DailyFxRateList dailyFxRateList = xmlMapper.readValue(xml, DailyFxRateList.class);
         logger.info("Fetched {} FX rates for {}", dailyFxRateList.getDailyFxRates().size(), currencyCode);
         return dailyFxRateList.getDailyFxRates();
-    }
+    }*/
   
 }

@@ -1,4 +1,4 @@
-package lt.fxportal.Domain.Services;
+package lt.fxportal.ApplicationServices;
 
 import java.util.List;
 
@@ -8,18 +8,19 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.AllArgsConstructor;
 import lt.fxportal.API.DTOs.lbLtFxRates.CurrencyData;
 import lt.fxportal.Domain.Entities.Currency;
-import lt.fxportal.Mappers.lbLtFxRates.CurrencyMapper;
+import lt.fxportal.InfrastructureServices.LbClient;
+import lt.fxportal.Mappers.lbLtFxRates.LbCurrencyMapper;
 import lt.fxportal.Repositories.ICurrencyRepository;
 
 import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class CurrencyService {
+public class CurrencyApplicationService {
 
     private final ICurrencyRepository currencyRepository;
     private final LbClient lbClient;
-    private final CurrencyMapper currencyMapper;
+    private final LbCurrencyMapper currencyMapper;
     
     @Transactional
     public void fetchAndSaveCurrencies() throws Exception {

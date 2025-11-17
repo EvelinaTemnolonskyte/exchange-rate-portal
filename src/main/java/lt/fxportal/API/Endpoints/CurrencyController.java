@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.AllArgsConstructor;
 import lt.fxportal.API.DTOs.lbLtFxRates.CurrencyData;
-import lt.fxportal.Domain.Services.LbClient;
+import lt.fxportal.InfrastructureServices.LbClient;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package lt.fxportal.Domain.Services;
+package lt.fxportal.InfrastructureServices;
 
 import java.util.List;
 
@@ -7,23 +7,20 @@ import org.springframework.stereotype.Service;
 
 import lombok.AllArgsConstructor;
 import lt.fxportal.API.DTOs.lbLtFxRates.DailyFxRate;
+import lt.fxportal.ApplicationServices.CurrencyApplicationService;
+import lt.fxportal.ApplicationServices.ExchangeRateApplicationService;
 
 @Service
 @AllArgsConstructor
 public class Scheduler {
 
     private final LbClient lbClient;
-    private final ExchangeRateService exchangeRateService;
-    private final CurrencyService currencyService;
+    private final ExchangeRateApplicationService exchangeRateService;
+    private final CurrencyApplicationService currencyService;
 
-    @Scheduled(cron = "0 0 1 * * *")
-    public void updateCurrenciesDaily() throws Exception {
-        currencyService.fetchAndSaveCurrencies();
-        System.out.println("Currencies updated from LB.");
-    }
-    
     @Scheduled(cron = "*/60 * * * * *") 
     public void fetchAndSaveDailyRates() throws Exception {
+        currencyService.fetchAndSaveCurrencies();
         List<DailyFxRate> dailyRates = lbClient.getCurrentFxRatesXml();
         exchangeRateService.saveAllRates(dailyRates);
     }
