@@ -6,9 +6,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.AllArgsConstructor;
+
+import lt.fxportal.API.DTOs.CurrencyDTO;
 import lt.fxportal.API.DTOs.lbLtFxRates.CurrencyData;
 import lt.fxportal.Domain.Entities.Currency;
 import lt.fxportal.InfrastructureServices.LbClient;
+import lt.fxportal.Mappers.CurrencyMapper;
 import lt.fxportal.Mappers.lbLtFxRates.LbCurrencyMapper;
 import lt.fxportal.Repositories.ICurrencyRepository;
 
@@ -20,7 +23,8 @@ public class CurrencyApplicationService {
 
     private final ICurrencyRepository currencyRepository;
     private final LbClient lbClient;
-    private final LbCurrencyMapper currencyMapper;
+    private final LbCurrencyMapper lbcurrencyMapper;
+    private final CurrencyMapper currencyMapper;
     
     @Transactional
     public void fetchAndSaveCurrencies() throws Exception {
@@ -28,7 +32,7 @@ public class CurrencyApplicationService {
 
        
         List<Currency> newCurrencies = currencyDataList.stream()
-                .map(currencyMapper::toCurrencyEntity)
+                .map(lbcurrencyMapper::toCurrencyEntity)
                 .filter(c -> !currencyRepository.existsById(c.getCode()))
                 .collect(Collectors.toList());
         if (!newCurrencies.isEmpty()) {
@@ -36,20 +40,16 @@ public class CurrencyApplicationService {
         }
     }
 
-    public List<Currency> getAllCurrencies() {
-        return currencyRepository.findAll();
+    public List<CurrencyDTO> getAllCurrencies() {
+        List<Currency> currencies = currencyRepository.findAll();
+        return currencyMapper.toDTOList(currencies);
     }
 
-    public List<String> getAllCurrencyCodes() {
-        return currencyRepository.findAll().stream()
-                .map(c -> c.getCode())
-                .toList();
+    public CurrencyDTO getCurrencyByCode(String code) {
+        return currencyRepository.findById(code)
+                .map(currencyMapper::toDTO)
+                .orElse(null);
     }
+
 
 }
-
-
-
-
-
-

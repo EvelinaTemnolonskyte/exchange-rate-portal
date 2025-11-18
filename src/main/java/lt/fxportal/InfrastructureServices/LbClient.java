@@ -1,8 +1,6 @@
 package lt.fxportal.InfrastructureServices;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Collections;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
