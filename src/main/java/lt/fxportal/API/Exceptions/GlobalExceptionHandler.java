@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import lt.fxportal.API.DTOs.ErrorResponseDTO;
+import lt.fxportal.API.Exceptions.DTOs.ErrorResponseDTO;
 import lt.fxportal.ApplicationServices.Exceptions.CurrencyNotFoundException;
 import lt.fxportal.ApplicationServices.Exceptions.ExchangeRateNotFoundException;
 import lt.fxportal.ApplicationServices.Exceptions.InvalidAmountException;

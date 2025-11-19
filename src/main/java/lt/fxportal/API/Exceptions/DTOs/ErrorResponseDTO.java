@@ -1,4 +1,4 @@
-package lt.fxportal.API.DTOs;
+package lt.fxportal.API.Exceptions.DTOs;
 
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;

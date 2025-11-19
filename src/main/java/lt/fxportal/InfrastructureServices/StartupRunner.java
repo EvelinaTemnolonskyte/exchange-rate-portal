@@ -1,6 +1,5 @@
 package lt.fxportal.InfrastructureServices;
 
-import java.util.List;
 import lt.fxportal.ApplicationServices.ExchangeRateApplicationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
