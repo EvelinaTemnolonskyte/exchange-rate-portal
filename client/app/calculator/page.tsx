@@ -121,6 +121,11 @@ export default function CalculatorPage() {
                     setConvertedAmount(null);
                     setRateUsed(null);
                 }}
+                onKeyDown={(e) => {
+                    if (e.key === "-") {
+                    e.preventDefault();
+                    }
+                }}
                 />
             </div>
             </div>
@@ -147,4 +152,3 @@ export default function CalculatorPage() {
         </main>
     );
 }
-

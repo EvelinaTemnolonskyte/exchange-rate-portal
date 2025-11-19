@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import lt.fxportal.API.DTOs.ErrorResponseDTO;
 import lt.fxportal.ApplicationServices.Exceptions.CurrencyNotFoundException;
 import lt.fxportal.ApplicationServices.Exceptions.ExchangeRateNotFoundException;
+import lt.fxportal.ApplicationServices.Exceptions.InvalidAmountException;
 import lt.fxportal.ApplicationServices.Exceptions.InvalidDateRangeException;
 
 @ControllerAdvice
@@ -30,6 +31,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(400).body(error);
     }
 
+    @ExceptionHandler(InvalidAmountException.class)
+    public ResponseEntity<ErrorResponseDTO> handleInvalidAmount(InvalidAmountException ex) {
+        ErrorResponseDTO error = new ErrorResponseDTO(ex.getMessage(), 400);
+        return ResponseEntity.status(400).body(error);
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGenericException(Exception ex) {

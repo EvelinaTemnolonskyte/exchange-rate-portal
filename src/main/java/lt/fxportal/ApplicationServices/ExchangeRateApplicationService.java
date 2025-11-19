@@ -12,6 +12,7 @@ import lt.fxportal.API.DTOs.CurrencyConversionDTO;
 import lt.fxportal.API.DTOs.ExchangeRateDTO;
 import lt.fxportal.API.DTOs.lbLtFxRates.DailyFxRate;
 import lt.fxportal.ApplicationServices.Exceptions.CurrencyNotFoundException;
+import lt.fxportal.ApplicationServices.Exceptions.InvalidAmountException;
 import lt.fxportal.ApplicationServices.Exceptions.InvalidDateRangeException;
 import lt.fxportal.Domain.Entities.ExchangeRate;
 import lt.fxportal.Domain.Services.CurrencyConverter;
@@ -74,6 +75,7 @@ public class ExchangeRateApplicationService {
         if (from != null && to != null && to.isBefore(from)) {
             throw new InvalidDateRangeException("'to' date cannot be before 'from' date");
         }
+        
         List<ExchangeRate> rates = exchangeRateRepository.findByCurrencyAndOptionalDates(currency, from, to);
         return exchangeRateMapper.toDTOList(rates);
     }
@@ -81,6 +83,9 @@ public class ExchangeRateApplicationService {
 
 
     public CurrencyConversionDTO convertAmount(String from, String to, BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new InvalidAmountException("Amount must be non-negative");
+        }
 
         BigDecimal fromRate = from.equalsIgnoreCase("EUR") 
                 ? BigDecimal.ONE 
