@@ -1,5 +1,7 @@
 package lt.fxportal.API.DTOs.lbLtFxRates;
 
+import java.math.BigDecimal;
+
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 import lombok.Data;
@@ -11,6 +13,6 @@ public class CurrencyAmount {
     private String currencyCode;
 
     @JacksonXmlProperty(localName = "Amt")
-    private double amount;
+    private BigDecimal amount;
 }
 

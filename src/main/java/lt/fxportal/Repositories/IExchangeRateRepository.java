@@ -1,6 +1,7 @@
 package lt.fxportal.Repositories;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,6 +21,8 @@ public interface IExchangeRateRepository extends JpaRepository<ExchangeRate, UUI
                             WHERE e2.currency = e.currency)
             """)
     List<ExchangeRate> findLatestRatesForAllCurrencies();
+
+    Optional<ExchangeRate> findLatestRateByCurrencyCode(String currencyCode);
 
     @Query("""
             SELECT e FROM ExchangeRate e

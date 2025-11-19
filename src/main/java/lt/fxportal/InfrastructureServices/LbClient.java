@@ -53,20 +53,4 @@ public class LbClient {
         return dailyFxRateList.getDailyFxRates();
     }
 
-    /*public List<DailyFxRate> getFxRatesForCurrency(String currencyCode, LocalDate from, LocalDate to) throws Exception {
-        String url = String.format("%s/getFxRatesForCurrency?tp=EU&ccy=%s&dtFrom=%s&dtTo=%s",
-                BASE_URL, currencyCode, from.toString(), to.toString());
-        logger.info("Fetching FX rates for {} from URL: {}", currencyCode, url);
-
-        String xml = restTemplate.getForObject(url, String.class);
-        if (xml.contains("No data")) {
-            logger.warn("No data found for currency {}. Skipping.", currencyCode);
-            return Collections.emptyList();
-        }
-
-        DailyFxRateList dailyFxRateList = xmlMapper.readValue(xml, DailyFxRateList.class);
-        logger.info("Fetched {} FX rates for {}", dailyFxRateList.getDailyFxRates().size(), currencyCode);
-        return dailyFxRateList.getDailyFxRates();
-    }*/
-  
 }

@@ -1,5 +1,7 @@
 package lt.fxportal.ApplicationServices;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -7,10 +9,13 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lt.fxportal.API.DTOs.CurrencyConversionDTO;
 import lt.fxportal.API.DTOs.ExchangeRateDTO;
 import lt.fxportal.API.DTOs.lbLtFxRates.DailyFxRate;
 import lt.fxportal.Domain.Entities.ExchangeRate;
+import lt.fxportal.Domain.Services.CurrencyConverter;
 import lt.fxportal.InfrastructureServices.LbClient;
+import lt.fxportal.Mappers.CurrencyConversionMapper;
 import lt.fxportal.Mappers.ExchangeRateMapper;
 import lt.fxportal.Mappers.lbLtFxRates.LbExchangeRateMapper;
 import lt.fxportal.Repositories.IExchangeRateRepository;
@@ -21,8 +26,12 @@ import lt.fxportal.Repositories.IExchangeRateRepository;
 public class ExchangeRateApplicationService {
 
     private final IExchangeRateRepository exchangeRateRepository;
+
     private final LbExchangeRateMapper lbExchangeRateMapper;
     private final ExchangeRateMapper exchangeRateMapper;
+    private final CurrencyConversionMapper currencyConversionMapper;
+
+    private final CurrencyConverter currencyConverter;
     private final LbClient lbClient;
 
     @Transactional
@@ -43,17 +52,6 @@ public class ExchangeRateApplicationService {
         saveAllRates(dailyFxRates);
     }
 
-   /*  @Transactional
-    public void fetchAndSaveFxRatesHistory(int daysBack, List<String> currencyCodes) throws Exception {
-        LocalDate today = LocalDate.now();
-        LocalDate from = today.minusDays(daysBack); 
-        
-        for (String code : currencyCodes) {
-            List<DailyFxRate> fxRates = lbClient.getFxRatesForCurrency(code, from, today);
-            saveAllRates(fxRates); 
-        }
-    } */
-
 
     public List<ExchangeRateDTO> getAllRates() {
         List<ExchangeRate> rates = exchangeRateRepository.findAll();
@@ -69,5 +67,27 @@ public class ExchangeRateApplicationService {
         List<ExchangeRate> rates = exchangeRateRepository.findByCurrencyAndOptionalDates(currency, from, to);
         return exchangeRateMapper.toDTOList(rates);
     }
+
+    public CurrencyConversionDTO convertAmount(String from, String to, BigDecimal amount) {
+
+        BigDecimal fromRate = from.equalsIgnoreCase("EUR") 
+                ? BigDecimal.ONE 
+                : exchangeRateRepository.findLatestRateByCurrencyCode(from)
+                    .map(ExchangeRate::getRate)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown currency: " + from));
+
+        BigDecimal toRate = to.equalsIgnoreCase("EUR") 
+                ? BigDecimal.ONE 
+                : exchangeRateRepository.findLatestRateByCurrencyCode(to)
+                    .map(ExchangeRate::getRate)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown currency: " + to));
+
+        BigDecimal rateUsed = currencyConverter.getRate(fromRate, toRate);
+
+        BigDecimal convertedAmount = currencyConverter.convert(amount, rateUsed);
+
+        return currencyConversionMapper.toDTO(from, to, amount, convertedAmount, rateUsed);
+    }
+
 
 }

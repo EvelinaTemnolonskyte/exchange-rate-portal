@@ -17,18 +17,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/currencies")
+@RequestMapping(value = "/currencies", produces = "application/xml" )
 public class CurrencyController {
 
     private final CurrencyApplicationService currencyApplicationService;
 
-    @GetMapping(produces = "application/xml")
+    @GetMapping
     public ResponseEntity <List<CurrencyDTO>> getAllRates(){
         List<CurrencyDTO> exchangeRateDTOList = currencyApplicationService.getAllCurrencies();
         return ResponseEntity.ok().body(exchangeRateDTOList);
     }
 
-    @GetMapping(value = "/by-code", produces = "application/xml")
+    @GetMapping("/by-code")
     public ResponseEntity<CurrencyDTO> getCurrencyByCode(@RequestParam String currencyCode) {
         CurrencyDTO currencyDTO = currencyApplicationService.getCurrencyByCode(currencyCode);
         if(currencyDTO != null){

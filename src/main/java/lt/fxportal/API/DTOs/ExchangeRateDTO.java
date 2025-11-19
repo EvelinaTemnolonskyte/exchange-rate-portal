@@ -1,5 +1,6 @@
 package lt.fxportal.API.DTOs;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
@@ -14,5 +15,5 @@ import lombok.NoArgsConstructor;
 public class ExchangeRateDTO {
     private String currency;
     private LocalDate date;
-    private double rate;
+    private BigDecimal rate;
 }

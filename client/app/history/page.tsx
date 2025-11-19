@@ -1,36 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { Line } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  LineElement,
-  PointElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend,
-} from "chart.js";
-
-ChartJS.register(
-  LineElement,
-  PointElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend
-);
-
-type RateHistoryItem = {
-  date: string;
-  rate: number;
-};
-
-type Currency = {
-  code: string;
-  name: string;
-};
-
+import { Currency, RateHistoryItem } from "@/app/types";
 
 export default function HistoryPage(){
     const [currencies, setCurrencies] = useState<Currency[]>([]);
@@ -94,18 +65,6 @@ export default function HistoryPage(){
         loadHistory();
     }, [selectedCurrency, fromDate, toDate]);
 
-    const chartData = {
-    labels: history.map((x) => x.date),
-    datasets: [
-      {
-        label: `Rate for ${selectedCurrency}`,
-        data: history.map((x) => x.rate),
-        borderWidth: 2,
-        borderColor: "rgb(75, 85, 192)",
-        backgroundColor: "rgba(75, 85, 192, 0.2)",
-      },
-    ],
-  };
 
    return(
     <main className="p-8">
@@ -168,11 +127,6 @@ export default function HistoryPage(){
 
         {loading && <p>Loading history...</p>}
 
-        {history.length > 0 && (
-            <div className="bg-white p-6 rounded-xl shadow max-w-4xl mx-auto mb-10">
-            <Line data={chartData} />
-            </div>
-        )}
 
         {!loading && history.length === 0 && selectedCurrency && (
             <p className="text-center text-gray-500 mt-4">No data found for selected currency and dates.</p>
@@ -185,7 +139,7 @@ export default function HistoryPage(){
                 <thead className="bg-gray-200">
                 <tr>
                     <th className="p-2 border">Date</th>
-                    <th className="p-2 border">Rate</th>
+                    <th className="p-2 border">Exchange Rate (1 EUR = ...)</th>
                 </tr>
                 </thead>
                 <tbody>

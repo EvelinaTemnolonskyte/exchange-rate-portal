@@ -1,5 +1,6 @@
 package lt.fxportal.Domain.Entities;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -46,6 +47,6 @@ public class ExchangeRate {
     @Column(name = "date", nullable = false)
     private LocalDate date;
 
-    @Column(name = "rate", nullable = false)
-    private double rate;
+    @Column(name = "rate", nullable = false, precision = 20, scale = 7)
+    private BigDecimal rate;
 }

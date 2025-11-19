@@ -1,5 +1,6 @@
 package lt.fxportal.API.Endpoints;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -11,36 +12,48 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.AllArgsConstructor;
+import lt.fxportal.API.DTOs.CurrencyConversionDTO;
 import lt.fxportal.API.DTOs.ExchangeRateDTO;
 import lt.fxportal.ApplicationServices.ExchangeRateApplicationService;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/rates")
+@RequestMapping(value = "/rates", produces = "application/xml")
 public class ExchangeRateController {
     
     private final ExchangeRateApplicationService exchangeRateApplicationService;
 
-    @GetMapping(produces = "application/xml")
+    @GetMapping
     public ResponseEntity <List<ExchangeRateDTO>> getAllRates(){
         List<ExchangeRateDTO> exchangeRateDTOList = exchangeRateApplicationService.getAllRates();
         return ResponseEntity.ok().body(exchangeRateDTOList);
     }
 
-    @GetMapping(value = "/by-currency", produces = "application/xml")
+    @GetMapping("/by-currency")
     public ResponseEntity<List<ExchangeRateDTO>> getRatesByCurrency(
             @RequestParam String currency,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to){
 
         List<ExchangeRateDTO> rates = exchangeRateApplicationService.getRatesForCurrency(currency, from, to);
         return ResponseEntity.ok(rates);
     }
 
-    @GetMapping(value = "/latest", produces = "application/xml")
+    @GetMapping("/latest")
     public ResponseEntity <List<ExchangeRateDTO>> getLastestRates(){
         List<ExchangeRateDTO> exchangeRateDTOList = exchangeRateApplicationService.getLatestRatesForAllCurrencies();
         return ResponseEntity.ok().body(exchangeRateDTOList);
     }
+
+   @GetMapping("/convert")
+    public ResponseEntity<CurrencyConversionDTO> getConversionAmount(
+        @RequestParam String from,
+        @RequestParam String to,
+        @RequestParam BigDecimal amount) {
+        
+        CurrencyConversionDTO currencyConversionDTO = exchangeRateApplicationService.convertAmount(from, to, amount);
+        return ResponseEntity.ok().body(currencyConversionDTO);
+    }
+    
     
 }
