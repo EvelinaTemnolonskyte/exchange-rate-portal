@@ -7,8 +7,3 @@ export type Currency = {
   code: string;
   name: string;
 };
-
-export type LatestRateItem = {
-  currency: string;
-  rate: number;
-};

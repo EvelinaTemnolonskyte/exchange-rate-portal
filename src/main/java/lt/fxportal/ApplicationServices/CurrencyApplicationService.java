@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.AllArgsConstructor;
 
 import lt.fxportal.API.DTOs.CurrencyDTO;
+import lt.fxportal.API.DTOs.ExchangeRateDTO;
 import lt.fxportal.API.DTOs.lbLtFxRates.CurrencyData;
 import lt.fxportal.Domain.Entities.Currency;
 import lt.fxportal.InfrastructureServices.LbClient;
@@ -25,6 +26,7 @@ public class CurrencyApplicationService {
     private final LbClient lbClient;
     private final LbCurrencyMapper lbcurrencyMapper;
     private final CurrencyMapper currencyMapper;
+    private final ExchangeRateApplicationService exchangeRateApplicationService;
     
     @Transactional
     public void fetchAndSaveCurrencies() throws Exception {
@@ -50,6 +52,27 @@ public class CurrencyApplicationService {
                 .map(currencyMapper::toDTO)
                 .orElse(null);
     }
+    
+    public List<CurrencyDTO> getCurrenciesWithRates() {
+
+        List<String> codesWithRates = exchangeRateApplicationService
+                .getLatestRatesForAllCurrencies()
+                .stream()
+                .map(ExchangeRateDTO::getCurrency)
+                .distinct()
+                .toList();
+
+        List<Currency> currencies = currencyRepository.findAllById(codesWithRates);
+
+        currencyRepository.findById("EUR").ifPresent(euro -> {
+            if (currencies.stream().noneMatch(c -> c.getCode().equals("EUR"))) {
+                currencies.add(euro);
+            }
+        });
+
+        return currencyMapper.toDTOList(currencies);
+    }
+
 
 
 }

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Currency, RateHistoryItem } from "@/app/types";
+import Header from "@/app/components/Header";
+import CurrencySelect from "@/app/components/CurrencySelect";
 
 export default function HistoryPage(){
     const [currencies, setCurrencies] = useState<Currency[]>([]);
@@ -13,17 +15,15 @@ export default function HistoryPage(){
     const today = new Date().toISOString().split("T")[0];
 
     useEffect(() => {
-        fetch("/api/currencies")
+        fetch("/api/currencies/with-rates")
             .then((res) => res.text())
             .then((xml) => {
-                //console.log("Raw XML from backend:", xml);
                 const parser = new DOMParser();
                 const dom = parser.parseFromString(xml, "application/xml");
                 const allCurrencies: Currency[] = [...dom.getElementsByTagName("item")].map((item) => ({
                     code: item.getElementsByTagName("code")[0]?.textContent || "",
                     name: item.getElementsByTagName("nameEn")[0]?.textContent || "",
                 }));
-                //console.log("Parsed currencies:", allCurrencies);
                 setCurrencies(allCurrencies);
             });
     }, []);
@@ -67,92 +67,85 @@ export default function HistoryPage(){
 
 
    return(
-    <main className="p-8">
-        <h1 className="text-3xl font-bold mb-6">Exchange Rate History</h1>
+    <main className="flex flex-1 flex-col">
+      <Header title="Exchange Rate History" />
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 max-w-4xl">
-            <div>
-                <label className="font-semibold">Currency</label>
-                <select
-                    value={selectedCurrency}
-                    onChange={e => setSelectedCurrency(e.target.value)}
-                    className="border p-2 rounded w-full mt-1"
-                >
-                    <option value="">Select currency</option>
-                    {currencies.map(c => (
-                    <option key={c.code} value={c.code}>
-                        {c.code} - {c.name}
-                    </option>
-                    ))}
-                </select>
-            </div>
+      <section className="p-8 max-w-4xl mx-auto">
+
+        <div className="flex flex-1 justify-center gap-2 my-2">
+            <CurrencySelect
+                label="Currency"
+                value={selectedCurrency}
+                onChange={setSelectedCurrency}
+                currencies={currencies.filter(c => c.code !== "EUR")}
+            />
 
             <div>
                 <label className="font-semibold">From</label>
                 <input
-                    type="date"
-                    className="border p-2 rounded w-full mt-1"
-                    value={fromDate}
-                    max={toDate && toDate < today ? toDate : today} 
-                    onChange={e => {
-                    const newFrom = e.target.value;
-                    setFromDate(newFrom);
-
-                    if (toDate && newFrom > toDate) {
-                        setToDate(newFrom);
-                    }
-                    }}
+                type="date"
+                className="border p-2 rounded w-full mt-1"
+                value={fromDate}
+                max={toDate || today}
+                onChange={(e) => {
+                    const v = e.target.value;
+                    setFromDate(v);
+                    if (toDate && v > toDate) setToDate(v);
+                }}
                 />
             </div>
 
             <div>
                 <label className="font-semibold">To</label>
                 <input
-                    type="date"
-                    className="border p-2 rounded w-full mt-1"
-                    value={toDate}
-                    min={fromDate || undefined} 
-                    max={today}
-                    onChange={e => {
-                    const newTo = e.target.value;
-                    setToDate(newTo);
-
-                    if (fromDate && newTo < fromDate) {
-                        setFromDate(newTo);
-                    }
-                    }}
+                type="date"
+                className="border p-2 rounded w-full mt-1"
+                value={toDate}
+                min={fromDate || undefined}
+                max={today}
+                onChange={(e) => {
+                    const v = e.target.value;
+                    setToDate(v);
+                    if (fromDate && v < fromDate) setFromDate(v);
+                }}
                 />
             </div>
         </div>
 
         {loading && <p>Loading history...</p>}
 
-
         {!loading && history.length === 0 && selectedCurrency && (
-            <p className="text-center text-gray-500 mt-4">No data found for selected currency and dates.</p>
+          <p className="text-center text-gray-500 mt-4">
+            No data found for selected currency and dates.
+          </p>
         )}
 
         {history.length > 0 && (
-            <div className="bg-white p-6 rounded-xl shadow max-w-4xl mx-auto">
-            <h2 className="text-xl font-semibold mb-4">Data Table</h2>
+          <div className="flex justify-center items-center flex-col">
+            <h2 className="text-xl font-semibold mb-4">
+              History for {selectedCurrency}
+            </h2>
+
             <table className="w-full border">
-                <thead className="bg-gray-200">
+              <thead className="bg-gray-200">
                 <tr>
-                    <th className="p-2 border">Date</th>
-                    <th className="p-2 border">Exchange Rate (1 EUR = ...)</th>
+                  <th className="p-2 border">Date</th>
+                  <th className="p-2 border">Rate (1 EUR = ...)</th>
                 </tr>
-                </thead>
-                <tbody>
-                {history.map((h, i) => (
-                    <tr key={i}>
-                    <td className="border p-2">{h.date}</td>
-                    <td className="border p-2">{h.rate}</td>
-                    </tr>
+              </thead>
+              <tbody>
+                {history.map((row, i) => (
+                  <tr key={i}>
+                    <td className="border p-2">{row.date}</td>
+                    <td className="border p-2">{row.rate}</td>
+                  </tr>
                 ))}
-                </tbody>
+              </tbody>
             </table>
-            </div>
+          </div>
         )}
+
+      </section>
     </main>
   );
 }

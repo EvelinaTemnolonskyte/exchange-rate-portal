@@ -23,10 +23,11 @@ public class CurrencyController {
     private final CurrencyApplicationService currencyApplicationService;
 
     @GetMapping
-    public ResponseEntity <List<CurrencyDTO>> getAllRates(){
+    public ResponseEntity <List<CurrencyDTO>> getAllCurrencies(){
         List<CurrencyDTO> exchangeRateDTOList = currencyApplicationService.getAllCurrencies();
         return ResponseEntity.ok().body(exchangeRateDTOList);
     }
+
 
     @GetMapping("/by-code")
     public ResponseEntity<CurrencyDTO> getCurrencyByCode(@RequestParam String currencyCode) {
@@ -36,6 +37,12 @@ public class CurrencyController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/with-rates")
+    public ResponseEntity<List<CurrencyDTO>> getVisibleCurrencies() {
+        List<CurrencyDTO> visibleCurrencies = currencyApplicationService.getCurrenciesWithRates();
+        return ResponseEntity.ok(visibleCurrencies);
     }
     
 }
