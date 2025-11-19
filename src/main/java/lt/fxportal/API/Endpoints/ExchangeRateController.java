@@ -47,12 +47,12 @@ public class ExchangeRateController {
 
    @GetMapping("/convert")
     public ResponseEntity<CurrencyConversionDTO> getConversionAmount(
-        @RequestParam String from,
-        @RequestParam String to,
-        @RequestParam BigDecimal amount) {
-        
-        CurrencyConversionDTO currencyConversionDTO = exchangeRateApplicationService.convertAmount(from, to, amount);
-        return ResponseEntity.ok().body(currencyConversionDTO);
+            @RequestParam String from,
+            @RequestParam String to,
+            @RequestParam BigDecimal amount) {
+
+        CurrencyConversionDTO dto = exchangeRateApplicationService.convertAmount(from, to, amount);
+        return ResponseEntity.ok(dto);
     }
     
     

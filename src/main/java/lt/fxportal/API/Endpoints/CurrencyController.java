@@ -31,12 +31,8 @@ public class CurrencyController {
 
     @GetMapping("/by-code")
     public ResponseEntity<CurrencyDTO> getCurrencyByCode(@RequestParam String currencyCode) {
-        CurrencyDTO currencyDTO = currencyApplicationService.getCurrencyByCode(currencyCode);
-        if(currencyDTO != null){
-            return ResponseEntity.ok().body(currencyDTO);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        CurrencyDTO dto = currencyApplicationService.getCurrencyByCode(currencyCode);
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/with-rates")

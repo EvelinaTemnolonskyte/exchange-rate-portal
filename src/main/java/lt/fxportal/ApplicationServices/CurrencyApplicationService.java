@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lt.fxportal.API.DTOs.CurrencyDTO;
 import lt.fxportal.API.DTOs.ExchangeRateDTO;
 import lt.fxportal.API.DTOs.lbLtFxRates.CurrencyData;
+import lt.fxportal.ApplicationServices.Exceptions.CurrencyNotFoundException;
 import lt.fxportal.Domain.Entities.Currency;
 import lt.fxportal.InfrastructureServices.LbClient;
 import lt.fxportal.Mappers.CurrencyMapper;
@@ -50,8 +51,9 @@ public class CurrencyApplicationService {
     public CurrencyDTO getCurrencyByCode(String code) {
         return currencyRepository.findById(code)
                 .map(currencyMapper::toDTO)
-                .orElse(null);
+                .orElseThrow(() -> new CurrencyNotFoundException("Currency with code '" + code + "' not found"));
     }
+
     
     public List<CurrencyDTO> getCurrenciesWithRates() {
 
