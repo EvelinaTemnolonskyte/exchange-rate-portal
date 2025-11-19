@@ -14,8 +14,8 @@ export default function PageCard({ title, desc, href }: PageCardProps) {
                 p-8 bg-white rounded-xl 
                 border text-center block"
     >
-      <h2 className="flex flex-1 text-2xl font-semibold mb-2 text-gray-800">{title}</h2>
-      <p className="flex flex-1 text-gray-600">{desc}</p>
+      <h2 className="text-2xl font-semibold mb-2 text-gray-800">{title}</h2>
+      <p className="text-gray-600">{desc}</p>
     </Link>
   );
 }

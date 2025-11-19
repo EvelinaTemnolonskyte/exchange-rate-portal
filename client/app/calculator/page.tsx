@@ -101,6 +101,7 @@ export default function CalculatorPage() {
             <input
               type="number"
               min="0"
+              placeholder = "10.50"
               className="border p-2 rounded w-full mt-1"
               value={amount}
               onChange={(e) => {
@@ -114,7 +115,7 @@ export default function CalculatorPage() {
 
         <button
           onClick={handleConvert}
-          className="bg-green-600 text-white px-6 py-2 rounded shadow hover:bg-green-700 transition"
+          className="bg-green-600 text-white px-6 py-2 rounded cursor-pointer"
         >
           {loading ? "Converting..." : "Convert"}
         </button>

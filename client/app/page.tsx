@@ -2,9 +2,9 @@ import PageCard from "@/app/components/PageCard";
 
 export default function Home() {
   return (
-    <main className="flex flex-1 flex-col min-h-screen bg-gray-100">
+    <main className="flex flex-1 flex-col min-h-screen">
 
-      <section className="flex flex-1 flex-col items-center justify-center text-center py-28 bg-[#45b400] shadow-md">
+      <section className="flex flex-col items-center justify-center text-center py-28 bg-[#45b400] shadow-md">
         <h1 className="text-5xl font-bold text-white mb-4">
           Exchange Rate Portal
         </h1>
