@@ -25,10 +25,10 @@ public class StartupRunner {
     @EventListener(ApplicationReadyEvent.class)
     public void runAfterStartup() {
         try {
-            //currencyService.fetchAndSaveCurrencies();
+            currencyService.fetchAndSaveCurrencies();
             logger.info("Currencies loaded on startup.");
 
-            //exchangeRateApplicationService.fetchAndSaveCurrentRates();
+            exchangeRateApplicationService.fetchAndSaveCurrentRates();
             logger.info("Current FX rates loaded on startup.");
 
         } catch (Exception e) {

@@ -25,5 +25,3 @@ public class CurrencyConverter {
         return toRate.divide(fromRate, 4, RoundingMode.HALF_UP); 
     }
 }
-
-

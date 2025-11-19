@@ -72,13 +72,13 @@ public class ExchangeRateApplicationService {
 
         BigDecimal fromRate = from.equalsIgnoreCase("EUR") 
                 ? BigDecimal.ONE 
-                : exchangeRateRepository.findLatestRateByCurrencyCode(from)
+                : exchangeRateRepository.findTopByCurrency_CodeOrderByDateDesc(from)
                     .map(ExchangeRate::getRate)
                     .orElseThrow(() -> new IllegalArgumentException("Unknown currency: " + from));
 
         BigDecimal toRate = to.equalsIgnoreCase("EUR") 
                 ? BigDecimal.ONE 
-                : exchangeRateRepository.findLatestRateByCurrencyCode(to)
+                : exchangeRateRepository.findTopByCurrency_CodeOrderByDateDesc(to)
                     .map(ExchangeRate::getRate)
                     .orElseThrow(() -> new IllegalArgumentException("Unknown currency: " + to));
 

@@ -22,7 +22,7 @@ public interface IExchangeRateRepository extends JpaRepository<ExchangeRate, UUI
             """)
     List<ExchangeRate> findLatestRatesForAllCurrencies();
 
-    Optional<ExchangeRate> findLatestRateByCurrencyCode(String currencyCode);
+    Optional<ExchangeRate> findTopByCurrency_CodeOrderByDateDesc(String currencyCode);
 
     @Query("""
             SELECT e FROM ExchangeRate e
