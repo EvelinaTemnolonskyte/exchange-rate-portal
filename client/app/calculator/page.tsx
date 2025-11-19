@@ -69,32 +69,32 @@ export default function CalculatorPage() {
 
   return (
     <main className="flex flex-1 flex-col">
-      <Header title="Currency Calculator" />
+      <Header title="Currency Calculator" showBack={true}/>
 
       <section className="p-8 max-w-3xl mx-auto">
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <CurrencySelect
-            label="From"
-            value={fromCurrency}
-            onChange={(v) => {
-              setFromCurrency(v);
-              setConvertedAmount(null);
-              setRateUsed(null);
-            }}
-            currencies={currencies}
-          />
+            <CurrencySelect
+                label="From"
+                value={fromCurrency}
+                onChange={(v) => {
+                setFromCurrency(v);
+                setConvertedAmount(null);
+                setRateUsed(null);
+                }}
+                currencies={currencies}
+            />
 
-          <CurrencySelect
-            label="To"
-            value={toCurrency}
-            onChange={(v) => {
-              setToCurrency(v);
-              setConvertedAmount(null);
-              setRateUsed(null);
-            }}
-            currencies={currencies}
-          />
+            <CurrencySelect
+                label="To"
+                value={toCurrency}
+                onChange={(v) => {
+                    setToCurrency(v);
+                    setConvertedAmount(null);
+                    setRateUsed(null);
+                }}
+                currencies={currencies.filter((c) => c.code !== fromCurrency)}
+            />
 
           <div>
             <label className="font-semibold">Amount</label>

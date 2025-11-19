@@ -68,11 +68,11 @@ export default function HistoryPage(){
 
    return(
     <main className="flex flex-1 flex-col">
-      <Header title="Exchange Rate History" />
+      <Header title="Exchange Rate History" showBack={true}/>
 
       <section className="p-8 max-w-4xl mx-auto">
 
-        <div className="flex flex-1 justify-center gap-2 my-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <CurrencySelect
                 label="Currency"
                 value={selectedCurrency}

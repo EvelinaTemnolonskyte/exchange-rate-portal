@@ -14,7 +14,7 @@ export default function CurrencySelect({
   currencies,
 }: CurrencySelectProps) {
   return (
-    <div>
+    <div className="w-full">
       <label className="font-semibold">{label}</label>
       <select
         value={value}
