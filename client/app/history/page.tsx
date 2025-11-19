@@ -30,40 +30,49 @@ export default function HistoryPage(){
 
     useEffect(() => {
         const loadHistory = async () => {
-            if(!selectedCurrency){
+            if (!selectedCurrency) {
                 setHistory([]);
                 return;
             }
 
             setLoading(true);
 
-            try{
+            try {
                 const url =
                     `/api/rates/by-currency?currency=${selectedCurrency}` +
                     (fromDate ? `&from=${fromDate}` : "") +
                     (toDate ? `&to=${toDate}` : "");
-                
-                const res = await fetch(url);
-                const xml = await res.text();
-                console.log(xml);
-                const parser = new DOMParser();
-                const dom = parser.parseFromString(xml, "application/xml");
 
-                const items = [...dom.getElementsByTagName("item")].map((node) => ({
+                const res = await fetch(url);
+                const xmlText = await res.text();
+                const parser = new DOMParser();
+                const dom = parser.parseFromString(xmlText, "application/xml");
+
+                const errorNode = dom.getElementsByTagName("Error")[0];
+                if (errorNode) {
+                    const errorMessage =
+                        errorNode.getElementsByTagName("message")[0]?.textContent || "Unknown error";
+                    setHistory([]);
+                    alert(errorMessage);
+                    throw new Error(errorMessage); 
+                }
+
+                const items: RateHistoryItem[] = [...dom.getElementsByTagName("item")].map((node) => ({
                     date: node.getElementsByTagName("date")[0]?.textContent || "",
                     rate: parseFloat(node.getElementsByTagName("rate")[0]?.textContent || "0"),
                 }));
-                
+
                 setHistory(items);
-            } catch (err){
+            } catch (err) {
                 console.error("Error loading history:", err);
                 setHistory([]);
-            }finally{
+            } finally {
                 setLoading(false);
             }
         };
         loadHistory();
     }, [selectedCurrency, fromDate, toDate]);
+
 
 
    return(
