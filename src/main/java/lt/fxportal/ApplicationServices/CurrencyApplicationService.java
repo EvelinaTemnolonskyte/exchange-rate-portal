@@ -16,6 +16,7 @@ import lt.fxportal.InfrastructureServices.LbClient;
 import lt.fxportal.Mappers.CurrencyMapper;
 import lt.fxportal.Mappers.lbLtFxRates.LbCurrencyMapper;
 import lt.fxportal.Repositories.ICurrencyRepository;
+import lt.fxportal.Repositories.IExchangeRateRepository;
 
 import java.util.stream.Collectors;
 
@@ -23,58 +24,60 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class CurrencyApplicationService {
 
+    private static final String BASE_CURRENCY = "EUR";
+
     private final ICurrencyRepository currencyRepository;
     private final LbClient lbClient;
-    private final LbCurrencyMapper lbcurrencyMapper;
+    private final LbCurrencyMapper lbCurrencyMapper;
     private final CurrencyMapper currencyMapper;
-    private final ExchangeRateApplicationService exchangeRateApplicationService;
-    
+    private final IExchangeRateRepository exchangeRateRepository;
+
     @Transactional
     public void fetchAndSaveCurrencies() throws Exception {
         List<CurrencyData> currencyDataList = lbClient.getCurrencyListXml();
 
-       
         List<Currency> newCurrencies = currencyDataList.stream()
-                .map(lbcurrencyMapper::toCurrencyEntity)
+                .map(lbCurrencyMapper::toCurrencyEntity)
                 .filter(c -> !currencyRepository.existsById(c.getCode()))
-                .collect(Collectors.toList());
+                .toList();
+
         if (!newCurrencies.isEmpty()) {
             currencyRepository.saveAll(newCurrencies);
         }
     }
 
+    @Transactional(readOnly = true)
     public List<CurrencyDTO> getAllCurrencies() {
-        List<Currency> currencies = currencyRepository.findAll();
-        return currencyMapper.toDTOList(currencies);
+        return currencyMapper.toDTOList(currencyRepository.findAll());
     }
 
+    @Transactional(readOnly = true)
     public CurrencyDTO getCurrencyByCode(String code) {
         return currencyRepository.findById(code)
                 .map(currencyMapper::toDTO)
-                .orElseThrow(() -> new CurrencyNotFoundException("Currency with code '" + code + "' not found"));
+                .orElseThrow(() -> 
+                    new CurrencyNotFoundException("Currency with code '" + code + "' not found")
+                );
     }
 
-    
+    @Transactional(readOnly = true)
     public List<CurrencyDTO> getCurrenciesWithRates() {
 
-        List<String> codesWithRates = exchangeRateApplicationService
-                .getLatestRatesForAllCurrencies()
+        List<String> codesWithRates = exchangeRateRepository
+                .findLatestRatesForAllCurrencies()
                 .stream()
-                .map(ExchangeRateDTO::getCurrency)
+                .map(rate -> rate.getCurrency().getCode())
                 .distinct()
                 .toList();
 
         List<Currency> currencies = currencyRepository.findAllById(codesWithRates);
 
-        currencyRepository.findById("EUR").ifPresent(euro -> {
-            if (currencies.stream().noneMatch(c -> c.getCode().equals("EUR"))) {
-                currencies.add(euro);
+        currencyRepository.findById(BASE_CURRENCY).ifPresent(base -> {
+            if (currencies.stream().noneMatch(c -> c.getCode().equals(BASE_CURRENCY))) {
+                currencies.add(base);
             }
         });
 
         return currencyMapper.toDTOList(currencies);
     }
-
-
-
 }
