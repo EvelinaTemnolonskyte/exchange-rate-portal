@@ -17,17 +17,33 @@ export default function CalculatorPage() {
     const [error, setError] = useState("");
 
     useEffect(() => {
-        fetch("/api/currencies/with-rates")
-        .then(res => res.text())
-        .then(xml => {
-            const parser = new DOMParser();
-            const dom = parser.parseFromString(xml, "application/xml");
-            const allCurrencies: Currency[] = [...dom.getElementsByTagName("item")].map(item => ({
-            code: item.getElementsByTagName("code")[0]?.textContent || "",
-            name: item.getElementsByTagName("nameEn")[0]?.textContent || "",
-            }));
-            setCurrencies(allCurrencies);
-        });
+        const fetchCurrencies = async () => {
+            try {
+                const res = await fetch("/api/currencies/with-rates");
+
+                if (!res.ok) {
+                    throw new Error(`Failed to fetch currencies: ${res.status} ${res.statusText}`);
+                }
+
+                const xmlText = await res.text();
+                const parser = new DOMParser();
+                const dom = parser.parseFromString(xmlText, "application/xml");
+
+                const allCurrencies: Currency[] = [...dom.getElementsByTagName("item")].map(item => ({
+                    code: item.getElementsByTagName("code")[0]?.textContent || "",
+                    name: item.getElementsByTagName("nameEn")[0]?.textContent || "",
+                }));
+
+                setCurrencies(allCurrencies);
+            } catch (err) {
+                const msg = (err as Error).message || "Internal server error while fetching currencies.";
+                console.error(msg, err);
+                setError(msg);
+                alert(msg); 
+            }
+        };
+
+        fetchCurrencies();
     }, []);
 
     const handleConvert = async () => {
@@ -79,74 +95,74 @@ export default function CalculatorPage() {
 
     return (
         <main className="flex flex-1 flex-col">
-        <Header title="Currency Calculator" showBack={true}/>
+            <Header title="Currency Calculator" showBack={true}/>
 
-        <section className="p-8 max-w-3xl mx-auto">
+            <section className="p-8 max-w-3xl mx-auto">
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <CurrencySelect
-                    label="From"
-                    value={fromCurrency}
-                    onChange={(v) => {
-                    setFromCurrency(v);
-                    setConvertedAmount(null);
-                    setRateUsed(null);
-                    }}
-                    currencies={currencies}
-                />
-
-                <CurrencySelect
-                    label="To"
-                    value={toCurrency}
-                    onChange={(v) => {
-                        setToCurrency(v);
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <CurrencySelect
+                        label="From"
+                        value={fromCurrency}
+                        onChange={(v) => {
+                        setFromCurrency(v);
                         setConvertedAmount(null);
                         setRateUsed(null);
-                    }}
-                    currencies={currencies.filter((c) => c.code !== fromCurrency)}
-                />
+                        }}
+                        currencies={currencies}
+                    />
 
-            <div>
-                <label className="font-semibold">Amount</label>
-                <input
-                type="number"
-                min="0"
-                placeholder = "10.50"
-                className="border p-2 rounded w-full mt-1"
-                value={amount}
-                onChange={(e) => {
-                    setAmount(e.target.value);
-                    setConvertedAmount(null);
-                    setRateUsed(null);
-                }}
-                onKeyDown={(e) => {
-                    if (e.key === "-") {
-                    e.preventDefault();
-                    }
-                }}
-                />
-            </div>
-            </div>
+                    <CurrencySelect
+                        label="To"
+                        value={toCurrency}
+                        onChange={(v) => {
+                            setToCurrency(v);
+                            setConvertedAmount(null);
+                            setRateUsed(null);
+                        }}
+                        currencies={currencies.filter((c) => c.code !== fromCurrency)}
+                    />
 
-            <button
-            onClick={handleConvert}
-            className="bg-green-600 text-white px-6 py-2 rounded cursor-pointer"
-            >
-            {loading ? "Converting..." : "Convert"}
-            </button>
+                    <div>
+                        <label className="font-semibold">Amount</label>
+                        <input
+                            type="number"
+                            min="0"
+                            placeholder = "10.50"
+                            className="border p-2 rounded w-full mt-1"
+                            value={amount}
+                            onChange={(e) => {
+                                setAmount(e.target.value);
+                                setConvertedAmount(null);
+                                setRateUsed(null);
+                            }}
+                            onKeyDown={(e) => {
+                                if (e.key === "-") {
+                                e.preventDefault();
+                                }
+                            }}
+                        />
+                    </div>
+                </div>
 
-            {error && <p className="text-red-500 mt-4">{error}</p>}
+                <button
+                    onClick={handleConvert}
+                    className="bg-green-600 text-white px-6 py-2 rounded cursor-pointer"
+                >
+                    {loading ? "Converting..." : "Convert"}
+                </button>
 
-            {convertedAmount !== null && rateUsed !== null && !error && (
-            <ResultCard
-                amount={amount}
-                from={fromCurrency}
-                to={toCurrency}
-                converted={convertedAmount}
-                rate={rateUsed}
-            />
-            )}
-        </section>
+                {error && <p className="text-red-500 mt-4">{error}</p>}
+
+                {convertedAmount !== null && rateUsed !== null && !error && (
+                    <ResultCard
+                        amount={amount}
+                        from={fromCurrency}
+                        to={toCurrency}
+                        converted={convertedAmount}
+                        rate={rateUsed}
+                    />
+                )}
+            </section>
         </main>
     );
 }
