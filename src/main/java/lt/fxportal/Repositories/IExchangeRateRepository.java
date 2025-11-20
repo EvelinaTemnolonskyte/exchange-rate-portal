@@ -12,7 +12,6 @@ import lt.fxportal.Domain.Entities.ExchangeRate;
 
 public interface IExchangeRateRepository extends JpaRepository<ExchangeRate, UUID>{
     boolean existsByCurrency_CodeAndDate(String currencyCode, LocalDate date);
-   // List<ExchangeRate> findByCurrency_Code(String currencyCode);
 
     @Query("""
             SELECT e FROM ExchangeRate e
