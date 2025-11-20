@@ -28,6 +28,7 @@ import lt.fxportal.Repositories.IExchangeRateRepository;
 @Service
 @AllArgsConstructor
 public class ExchangeRateApplicationService {
+    private static final String BASE_CURRENCY = "EUR";
 
     private final IExchangeRateRepository exchangeRateRepository;
     private final ICurrencyRepository currencyRepository;
@@ -67,7 +68,7 @@ public class ExchangeRateApplicationService {
         return exchangeRateMapper.toDTOList(latestRates);
     }
 
-   public List<ExchangeRateDTO> getRatesForCurrency(String currency, LocalDate from, LocalDate to) {
+    public List<ExchangeRateDTO> getRatesForCurrency(String currency, LocalDate from, LocalDate to) {
         boolean currencyExists = currencyRepository.existsById(currency);
         if (!currencyExists) {
             throw new CurrencyNotFoundException("Currency not found: " + currency);
@@ -75,31 +76,18 @@ public class ExchangeRateApplicationService {
         if (from != null && to != null && to.isBefore(from)) {
             throw new InvalidDateRangeException("'to' date cannot be before 'from' date");
         }
-        
+
         List<ExchangeRate> rates = exchangeRateRepository.findByCurrencyAndOptionalDates(currency, from, to);
         return exchangeRateMapper.toDTOList(rates);
     }
 
-
-
     public CurrencyConversionDTO convertAmount(String from, String to, BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+        if (amount.signum() < 0) {
             throw new InvalidAmountException("Amount must be non-negative");
         }
 
-        BigDecimal fromRate = from.equalsIgnoreCase("EUR") 
-                ? BigDecimal.ONE 
-                : exchangeRateRepository.findTopByCurrency_CodeOrderByDateDesc(from)
-                    .map(ExchangeRate::getRate)
-                    .orElseThrow(() -> 
-                        new CurrencyNotFoundException("Currency not found: " + from));
-
-        BigDecimal toRate = to.equalsIgnoreCase("EUR") 
-                ? BigDecimal.ONE 
-                : exchangeRateRepository.findTopByCurrency_CodeOrderByDateDesc(to)
-                    .map(ExchangeRate::getRate)
-                    .orElseThrow(() -> 
-                        new CurrencyNotFoundException("Currency not found: " + to));
+        BigDecimal fromRate = getLatestRate(from);
+        BigDecimal toRate = getLatestRate(to);
 
         BigDecimal rateUsed = currencyConverter.getRate(fromRate, toRate);
         BigDecimal convertedAmount = currencyConverter.convert(amount, rateUsed);
@@ -107,6 +95,14 @@ public class ExchangeRateApplicationService {
         return currencyConversionMapper.toDTO(from, to, amount, convertedAmount, rateUsed);
     }
 
-
+    private BigDecimal getLatestRate(String currencyCode) {
+        if (currencyCode.equalsIgnoreCase(BASE_CURRENCY)) {
+            return BigDecimal.ONE;
+        }
+        return exchangeRateRepository.findTopByCurrency_CodeOrderByDateDesc(currencyCode)
+            .map(ExchangeRate::getRate)
+            .orElseThrow(() -> 
+                new CurrencyNotFoundException("Currency not found: " + currencyCode));
+    }
 
 }
