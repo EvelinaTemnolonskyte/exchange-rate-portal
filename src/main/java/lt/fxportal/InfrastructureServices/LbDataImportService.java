@@ -42,7 +42,7 @@ public class LbDataImportService {
     public void importCurrencies() throws Exception {
         List<CurrencyData> externalCurrencies = lbClient.getCurrencyListXml();
         List<Currency> entities = externalCurrencies.stream()
-            .map(lbCurrencyMapper::toCurrencyEntity)
+            .map(lbCurrencyMapper::toEntity)
             .filter(c -> !currencyRepository.existsById(c.getCode()))
             .toList();
 

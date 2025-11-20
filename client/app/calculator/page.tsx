@@ -77,8 +77,6 @@ export default function CalculatorPage() {
         }
     };
 
-
-
     return (
         <main className="flex flex-1 flex-col">
         <Header title="Currency Calculator" showBack={true}/>

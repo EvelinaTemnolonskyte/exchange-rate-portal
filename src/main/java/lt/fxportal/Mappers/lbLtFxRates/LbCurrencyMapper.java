@@ -10,7 +10,7 @@ import lt.fxportal.Domain.Entities.Currency;
 @Component
 public class LbCurrencyMapper {
 
-    public Currency toCurrencyEntity(CurrencyData data) {
+    public Currency toEntity(CurrencyData data) {
         String nameEn = data.getNames().stream()
                 .filter(n -> "en".equalsIgnoreCase(n.getLang()))
                 .map(CurrencyName::getValue)
