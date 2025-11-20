@@ -17,6 +17,7 @@ import lt.fxportal.ApplicationServices.Exceptions.InvalidDateRangeException;
 import lt.fxportal.Domain.Entities.ExchangeRate;
 import lt.fxportal.Domain.Services.CurrencyConverter;
 import lt.fxportal.InfrastructureServices.LbClient;
+import lt.fxportal.InfrastructureServices.LbDataImportService;
 import lt.fxportal.Mappers.CurrencyConversionMapper;
 
 import lt.fxportal.Mappers.ExchangeRateMapper;
@@ -28,34 +29,21 @@ import lt.fxportal.Repositories.IExchangeRateRepository;
 @Service
 @AllArgsConstructor
 public class ExchangeRateApplicationService {
+
     private static final String BASE_CURRENCY = "EUR";
 
     private final IExchangeRateRepository exchangeRateRepository;
     private final ICurrencyRepository currencyRepository;
 
-    private final LbExchangeRateMapper lbExchangeRateMapper;
     private final ExchangeRateMapper exchangeRateMapper;
     private final CurrencyConversionMapper currencyConversionMapper;
-
     private final CurrencyConverter currencyConverter;
-    private final LbClient lbClient;
 
-    @Transactional
-    public void saveAllRates(List<DailyFxRate> dailyFxRates) {
-        List<ExchangeRate> entities = lbExchangeRateMapper.toEntityList(dailyFxRates);
-
-        List<ExchangeRate> newRates = entities.stream()
-            .filter(rate -> !exchangeRateRepository
-                    .existsByCurrency_CodeAndDate(rate.getCurrency().getCode(), rate.getDate()))
-            .toList();
-
-        exchangeRateRepository.saveAll(newRates);
-    }
+    private final LbDataImportService lbDataImportService;
 
     @Transactional
     public void fetchAndSaveCurrentRates() throws Exception {
-        List<DailyFxRate> dailyFxRates = lbClient.getCurrentFxRatesXml();
-        saveAllRates(dailyFxRates);
+        lbDataImportService.importExchangeRates();
     }
 
     public List<ExchangeRateDTO> getAllRates() {
@@ -69,10 +57,10 @@ public class ExchangeRateApplicationService {
     }
 
     public List<ExchangeRateDTO> getRatesForCurrency(String currency, LocalDate from, LocalDate to) {
-        boolean currencyExists = currencyRepository.existsById(currency);
-        if (!currencyExists) {
+        if (!currencyRepository.existsById(currency)) {
             throw new CurrencyNotFoundException("Currency not found: " + currency);
         }
+
         if (from != null && to != null && to.isBefore(from)) {
             throw new InvalidDateRangeException("'to' date cannot be before 'from' date");
         }
@@ -104,5 +92,4 @@ public class ExchangeRateApplicationService {
             .orElseThrow(() -> 
                 new CurrencyNotFoundException("Currency not found: " + currencyCode));
     }
-
 }
