@@ -28,7 +28,7 @@ public class Scheduler {
             exchangeRateService.fetchAndSaveCurrentRates();
             logger.info("Current FX rates loaded.");
         } catch (Exception e) {
-            logger.error("Error fetching daily FX rates: {}", e.getMessage(), e);
+            logger.error("Error fetching data: {}", e.getMessage(), e);
         }
     }
 

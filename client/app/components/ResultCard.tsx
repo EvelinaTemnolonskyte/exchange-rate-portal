@@ -16,10 +16,10 @@ export default function ResultCard({
   return (
     <div className="mt-6 bg-white p-6 rounded-xl shadow text-center">
       <p className="text-xl font-semibold mb-2">
-        {amount} {from} = {converted.toFixed(4)} {to}
+        {amount} {from} = {converted.toFixed(7)} {to}
       </p>
       <p className="text-gray-600">
-        1 {from} = {rate.toFixed(4)} {to}
+        1 {from} = {rate.toFixed(7)} {to}
       </p>
     </div>
   );

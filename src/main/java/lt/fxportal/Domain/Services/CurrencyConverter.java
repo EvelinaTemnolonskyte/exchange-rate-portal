@@ -15,13 +15,13 @@ public class CurrencyConverter {
         if (amount == null || rate == null) {
             throw new IllegalArgumentException("Amount and rate cannot be null");
         }
-        return amount.multiply(rate).setScale(4, RoundingMode.HALF_UP);
+        return amount.multiply(rate).setScale(7, RoundingMode.HALF_UP);
     }
 
     public BigDecimal getRate(BigDecimal fromRate, BigDecimal toRate) {
         if (fromRate == null || toRate == null) {
             throw new IllegalArgumentException("Rates cannot be null");
         }
-        return toRate.divide(fromRate, 4, RoundingMode.HALF_UP); 
+        return toRate.divide(fromRate, 7, RoundingMode.HALF_UP); 
     }
 }
