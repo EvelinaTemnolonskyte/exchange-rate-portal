@@ -10,18 +10,15 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lt.fxportal.API.DTOs.CurrencyConversionDTO;
 import lt.fxportal.API.DTOs.ExchangeRateDTO;
-import lt.fxportal.API.DTOs.lbLtFxRates.DailyFxRate;
 import lt.fxportal.ApplicationServices.Exceptions.CurrencyNotFoundException;
 import lt.fxportal.ApplicationServices.Exceptions.InvalidAmountException;
 import lt.fxportal.ApplicationServices.Exceptions.InvalidDateRangeException;
 import lt.fxportal.Domain.Entities.ExchangeRate;
 import lt.fxportal.Domain.Services.CurrencyConverter;
-import lt.fxportal.InfrastructureServices.LbClient;
 import lt.fxportal.InfrastructureServices.LbDataImportService;
 import lt.fxportal.Mappers.CurrencyConversionMapper;
 
 import lt.fxportal.Mappers.ExchangeRateMapper;
-import lt.fxportal.Mappers.lbLtFxRates.LbExchangeRateMapper;
 import lt.fxportal.Repositories.ICurrencyRepository;
 import lt.fxportal.Repositories.IExchangeRateRepository;
 
