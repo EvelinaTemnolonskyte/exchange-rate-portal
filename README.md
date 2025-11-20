@@ -1,7 +1,7 @@
 ## Tech stack 
 - Backend: Spring Boot, Java 17, JPA/Hibernate, Maven
 - Frontend: Next.js, React, TypeScript, Tailwind CSS
-- Database: H2 (development) 
+- Database: H2
 - External Services: LB API for currency rates (https://www.lb.lt/webservices/FxRates/FxRates.asmx)
 
 ## To run backend
