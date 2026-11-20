@@ -5,6 +5,7 @@ import { Currency, ExchangeRate, RateHistoryItem } from "@/app/types";
 import Header from "@/app/components/Header";
 import CurrencySelect from "@/app/components/CurrencySelect";
 import { ensureResponseOk, getRequestErrorMessage } from "@/app/apiErrors";
+import { BASE_CURRENCY_CODE } from "@/app/constants";
 
 export default function HistoryPage() {
   const [currencies, setCurrencies] = useState<Currency[]>([]);
@@ -84,7 +85,7 @@ export default function HistoryPage() {
               label="Currency"
               value={selectedCurrency}
               onChange={setSelectedCurrency}
-              currencies={currencies.filter(c => c.code !== "EUR")}
+              currencies={currencies.filter(c => c.code !== BASE_CURRENCY_CODE)}
           />
 
           <div>
@@ -141,7 +142,7 @@ export default function HistoryPage() {
                   <thead className="bg-gray-200">
                       <tr>
                           <th className="p-2 border">Date</th>
-                          <th className="p-2 border">Rate (1 EUR = ...)</th>
+                          <th className="p-2 border">Rate (1 {BASE_CURRENCY_CODE} = ...)</th>
                       </tr>
                   </thead>
                   <tbody>

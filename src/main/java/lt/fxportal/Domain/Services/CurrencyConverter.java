@@ -5,10 +5,7 @@ import java.math.RoundingMode;
 
 import org.springframework.stereotype.Service;
 
-import lombok.AllArgsConstructor;
-
 @Service
-@AllArgsConstructor
 public class CurrencyConverter {
 
     public BigDecimal convert(BigDecimal amount, BigDecimal rate) {

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.AllArgsConstructor;
-import lt.fxportal.applicationservices.ExchangeRateApplicationService;
+import lt.fxportal.application.services.ExchangeRateApplicationService;
 import lt.fxportal.api.dtos.CurrencyConversionDTO;
 import lt.fxportal.api.dtos.CurrencyConversionRequest;
 import lt.fxportal.api.dtos.ExchangeRateDTO;

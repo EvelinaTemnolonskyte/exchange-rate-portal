@@ -14,10 +14,10 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import jakarta.servlet.http.HttpServletRequest;
-import lt.fxportal.applicationservices.exceptions.CurrencyNotFoundException;
-import lt.fxportal.applicationservices.exceptions.ExchangeRateNotFoundException;
-import lt.fxportal.applicationservices.exceptions.InvalidAmountException;
-import lt.fxportal.applicationservices.exceptions.InvalidDateRangeException;
+import lt.fxportal.application.exceptions.CurrencyNotFoundException;
+import lt.fxportal.application.exceptions.ExchangeRateNotFoundException;
+import lt.fxportal.application.exceptions.InvalidAmountException;
+import lt.fxportal.application.exceptions.InvalidDateRangeException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {

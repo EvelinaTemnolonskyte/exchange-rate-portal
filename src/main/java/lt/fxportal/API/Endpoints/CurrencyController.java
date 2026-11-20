@@ -3,8 +3,8 @@ package lt.fxportal.api.endpoints;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.AllArgsConstructor;
-import lt.fxportal.applicationservices.CurrencyApplicationService;
-import lt.fxportal.applicationservices.models.CurrencyView;
+import lt.fxportal.application.services.CurrencyApplicationService;
+import lt.fxportal.application.models.CurrencyView;
 import lt.fxportal.api.dtos.CurrencyDTO;
 
 import java.util.List;
