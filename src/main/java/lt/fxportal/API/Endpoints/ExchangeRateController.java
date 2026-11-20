@@ -18,7 +18,7 @@ import lt.fxportal.ApplicationServices.ExchangeRateApplicationService;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping(value = "/rates", produces = "application/xml")
+@RequestMapping(value = "/rates")
 public class ExchangeRateController {
     
     private final ExchangeRateApplicationService exchangeRateApplicationService;

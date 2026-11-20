@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { Currency, RateHistoryItem } from "@/app/types";
+import { Currency, ExchangeRate, RateHistoryItem } from "@/app/types";
 import Header from "@/app/components/Header";
 import CurrencySelect from "@/app/components/CurrencySelect";
 
@@ -21,16 +21,7 @@ export default function HistoryPage() {
         const res = await fetch("/api/currencies/with-rates");
         if (!res.ok) throw new Error(`Failed to fetch currencies: ${res.status}`);
 
-        const xmlText = await res.text();
-        const parser = new DOMParser();
-        const dom = parser.parseFromString(xmlText, "application/xml");
-
-        const allCurrencies: Currency[] = [...dom.getElementsByTagName("item")].map((item) => ({
-            code: item.getElementsByTagName("code")[0]?.textContent || "",
-            name: item.getElementsByTagName("nameEn")[0]?.textContent || "",
-        }));
-
-        setCurrencies(allCurrencies);
+        setCurrencies(await res.json() as Currency[]);
         setCurrenciesLoaded(true);
       } catch (err) {
         console.error(err);
@@ -62,25 +53,12 @@ export default function HistoryPage() {
             (toDate ? `&to=${toDate}` : "");
 
         const res = await fetch(url);
-        const xmlText = await res.text();
-        const parser = new DOMParser();
-        const dom = parser.parseFromString(xmlText, "application/xml");
-
-        const errorNode = dom.getElementsByTagName("Error")[0];
-        if (errorNode) {
-            const errorMessage =
-                errorNode.getElementsByTagName("message")[0]?.textContent || "Unknown error";
-            console.error(errorMessage);
-            setHistory([]);
-            return;
+        if (!res.ok) {
+          throw new Error(`Failed to fetch exchange rates: ${res.status} ${res.statusText}`);
         }
 
-        const items: RateHistoryItem[] = [...dom.getElementsByTagName("item")].map((node) => ({
-            date: node.getElementsByTagName("date")[0]?.textContent || "",
-            rate: parseFloat(node.getElementsByTagName("rate")[0]?.textContent || "0"),
-        }));
-
-        setHistory(items);
+        const rates = await res.json() as ExchangeRate[];
+        setHistory(rates.map(({ date, rate }) => ({ date, rate })) satisfies RateHistoryItem[]);
       } catch (err) {
         console.error("Error loading history:", err);
         setHistory([]);

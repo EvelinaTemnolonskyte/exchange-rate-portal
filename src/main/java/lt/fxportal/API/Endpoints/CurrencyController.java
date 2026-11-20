@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping(value = "/currencies", produces = "application/xml" )
+@RequestMapping(value = "/currencies")
 public class CurrencyController {
 
     private final CurrencyApplicationService currencyApplicationService;

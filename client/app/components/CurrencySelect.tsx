@@ -24,7 +24,7 @@ export default function CurrencySelect({
         <option value="">Select currency</option>
         {currencies.map((c) => (
           <option key={c.code} value={c.code}>
-            {c.code} - {c.name}
+            {c.code} - {c.nameEn}
           </option>
         ))}
       </select>

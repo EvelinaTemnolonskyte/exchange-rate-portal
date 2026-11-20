@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { Currency } from "@/app/types";
+import { Currency, CurrencyConversion } from "@/app/types";
 import Header from "@/app/components/Header";
 import CurrencySelect from "@/app/components/CurrencySelect";
 import ResultCard from "@/app/components/ResultCard";
@@ -25,16 +25,7 @@ export default function CalculatorPage() {
                     throw new Error(`Failed to fetch currencies: ${res.status} ${res.statusText}`);
                 }
 
-                const xmlText = await res.text();
-                const parser = new DOMParser();
-                const dom = parser.parseFromString(xmlText, "application/xml");
-
-                const allCurrencies: Currency[] = [...dom.getElementsByTagName("item")].map(item => ({
-                    code: item.getElementsByTagName("code")[0]?.textContent || "",
-                    name: item.getElementsByTagName("nameEn")[0]?.textContent || "",
-                }));
-
-                setCurrencies(allCurrencies);
+                setCurrencies(await res.json() as Currency[]);
             } catch (err) {
                 const msg = (err as Error).message || "Internal server error while fetching currencies.";
                 console.error(msg, err);
@@ -59,32 +50,15 @@ export default function CalculatorPage() {
 
         try {
             
-            const res = await fetch(
-                `/api/rates/convert?from=${fromCurrency}&to=${toCurrency}&amount=${amount}`
-            );
-
-            const xmlText = await res.text();
-            const parser = new DOMParser();
-            const xml = parser.parseFromString(xmlText, "application/xml");
-
-            const errorNode = xml.getElementsByTagName("Error")[0];
-            if (errorNode) {
-                const errorMessage =
-                    errorNode.getElementsByTagName("message")[0]?.textContent || "Unknown error";
-                setError(errorMessage);
-                alert(errorMessage);
-                throw new Error(errorMessage); 
+            const params = new URLSearchParams({ from: fromCurrency, to: toCurrency, amount });
+            const res = await fetch(`/api/rates/convert?${params}`);
+            if (!res.ok) {
+                throw new Error(`Conversion failed: ${res.status} ${res.statusText}`);
             }
 
-            const converted = xml.getElementsByTagName("convertedAmount")[0]?.textContent;
-            const rate = xml.getElementsByTagName("rateUsed")[0]?.textContent;
-
-            if (!converted || !rate) {
-                throw new Error("Invalid response from server");
-            }
-
-            setConvertedAmount(parseFloat(converted));
-            setRateUsed(parseFloat(rate));
+            const conversion = await res.json() as CurrencyConversion;
+            setConvertedAmount(conversion.convertedAmount);
+            setRateUsed(conversion.rateUsed);
         } catch (err) {
             console.error("Conversion error:", err);
             setError((err as Error).message || "Failed to convert currency.");

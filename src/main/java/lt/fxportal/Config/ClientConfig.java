@@ -1,21 +1,22 @@
 package lt.fxportal.Config;
 
+import java.time.Duration;
+
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+//import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 @Configuration
 public class ClientConfig {
 
     @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate(); 
-    }
-
-    @Bean
-    public XmlMapper xmlMapper() {
-        return new XmlMapper();
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder
+                .connectTimeout(Duration.ofSeconds(5))
+                .readTimeout(Duration.ofSeconds(10))
+                .build();
     }
 }
