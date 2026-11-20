@@ -18,7 +18,7 @@ export default function HistoryPage() {
   useEffect(() => {
     const fetchCurrencies = async () => {
       try {
-        const res = await fetch("/api/currencies/with-rates");
+        const res = await fetch("/api/currencies?withRates=true");
         if (!res.ok) throw new Error(`Failed to fetch currencies: ${res.status}`);
 
         setCurrencies(await res.json() as Currency[]);
@@ -47,10 +47,11 @@ export default function HistoryPage() {
     const loadHistory = async () => {
       setLoading(true);
       try {
-        const url =
-            `/api/rates/by-currency?currency=${selectedCurrency}` +
-            (fromDate ? `&from=${fromDate}` : "") +
-            (toDate ? `&to=${toDate}` : "");
+        const params = new URLSearchParams();
+        if (fromDate) params.set("fromDate", fromDate);
+        if (toDate) params.set("toDate", toDate);
+        const query = params.toString();
+        const url = `/api/currencies/${encodeURIComponent(selectedCurrency)}/rates${query ? `?${query}` : ""}`;
 
         const res = await fetch(url);
         if (!res.ok) {

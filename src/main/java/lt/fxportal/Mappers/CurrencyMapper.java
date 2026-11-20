@@ -1,10 +1,11 @@
-package lt.fxportal.Mappers;
+package lt.fxportal.mappers;
 
 import java.util.List;
 
 import org.mapstruct.Mapper;
-import lt.fxportal.API.DTOs.CurrencyDTO;
-import lt.fxportal.Domain.Entities.Currency;
+
+import lt.fxportal.domain.entities.Currency;
+import lt.fxportal.api.dtos.CurrencyDTO;
 
 @Mapper(componentModel = "spring")
 public interface CurrencyMapper {

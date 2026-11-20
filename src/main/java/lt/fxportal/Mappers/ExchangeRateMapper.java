@@ -1,15 +1,16 @@
-package lt.fxportal.Mappers;
+package lt.fxportal.mappers;
 
 import java.util.List;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import lt.fxportal.API.DTOs.ExchangeRateDTO;
-import lt.fxportal.Domain.Entities.ExchangeRate;
+
+import lt.fxportal.domain.entities.ExchangeRate;
+import lt.fxportal.api.dtos.ExchangeRateDTO;
 
 @Mapper(componentModel = "spring")
 public interface ExchangeRateMapper {
-    @Mapping(target = "currency", source = "currency.code")
+    @Mapping(target = "currencyCode", source = "currency.code")
     ExchangeRateDTO toDTO(ExchangeRate exchangeRate);
 
     List<ExchangeRateDTO> toDTOList(List<ExchangeRate> exchangeRates);

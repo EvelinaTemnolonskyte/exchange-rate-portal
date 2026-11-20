@@ -19,7 +19,7 @@ export default function CalculatorPage() {
     useEffect(() => {
         const fetchCurrencies = async () => {
             try {
-                const res = await fetch("/api/currencies/with-rates");
+                const res = await fetch("/api/currencies?withRates=true");
 
                 if (!res.ok) {
                     throw new Error(`Failed to fetch currencies: ${res.status} ${res.statusText}`);
@@ -49,9 +49,8 @@ export default function CalculatorPage() {
         setRateUsed(null);
 
         try {
-            
-            const params = new URLSearchParams({ from: fromCurrency, to: toCurrency, amount });
-            const res = await fetch(`/api/rates/convert?${params}`);
+            const params = new URLSearchParams({ fromCurrency, toCurrency, amount });
+            const res = await fetch(`/api/conversions?${params}`);
             if (!res.ok) {
                 throw new Error(`Conversion failed: ${res.status} ${res.statusText}`);
             }

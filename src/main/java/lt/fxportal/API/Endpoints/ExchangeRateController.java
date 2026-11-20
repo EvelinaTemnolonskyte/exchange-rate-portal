@@ -1,59 +1,61 @@
-package lt.fxportal.API.Endpoints;
+package lt.fxportal.api.endpoints;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.AllArgsConstructor;
-import lt.fxportal.API.DTOs.CurrencyConversionDTO;
-import lt.fxportal.API.DTOs.ExchangeRateDTO;
-import lt.fxportal.ApplicationServices.ExchangeRateApplicationService;
+import lt.fxportal.applicationservices.ExchangeRateApplicationService;
+import lt.fxportal.api.dtos.CurrencyConversionDTO;
+import lt.fxportal.api.dtos.CurrencyConversionRequest;
+import lt.fxportal.api.dtos.ExchangeRateDTO;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping(value = "/rates")
 public class ExchangeRateController {
     
     private final ExchangeRateApplicationService exchangeRateApplicationService;
 
-    @GetMapping
-    public ResponseEntity <List<ExchangeRateDTO>> getAllRates(){
+    @GetMapping("/rates")
+    public ResponseEntity<List<ExchangeRateDTO>> getAllRates() {
         List<ExchangeRateDTO> exchangeRateDTOList = exchangeRateApplicationService.getAllRates();
-        return ResponseEntity.ok().body(exchangeRateDTOList);
+        return ResponseEntity.ok(exchangeRateDTOList);
     }
 
-    @GetMapping("/by-currency")
-    public ResponseEntity<List<ExchangeRateDTO>> getRatesByCurrency(
-            @RequestParam String currency,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to){
+    @GetMapping("/currencies/{currencyCode}/rates")
+    public ResponseEntity<List<ExchangeRateDTO>> getRatesForCurrency(
+            @PathVariable @NotBlank @Pattern(regexp = "(?i)^[A-Z]{3}$") String currencyCode,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
 
-        List<ExchangeRateDTO> rates = exchangeRateApplicationService.getRatesForCurrency(currency, from, to);
+        List<ExchangeRateDTO> rates = exchangeRateApplicationService.getRatesForCurrency(currencyCode, fromDate, toDate);
         return ResponseEntity.ok(rates);
     }
 
-    @GetMapping("/latest")
-    public ResponseEntity <List<ExchangeRateDTO>> getLastestRates(){
+    @GetMapping("/rates/latest")
+    public ResponseEntity<List<ExchangeRateDTO>> getLatestRates() {
         List<ExchangeRateDTO> exchangeRateDTOList = exchangeRateApplicationService.getLatestRatesForAllCurrencies();
-        return ResponseEntity.ok().body(exchangeRateDTOList);
+        return ResponseEntity.ok(exchangeRateDTOList);
     }
 
-   @GetMapping("/convert")
-    public ResponseEntity<CurrencyConversionDTO> getConversionAmount(
-            @RequestParam String from,
-            @RequestParam String to,
-            @RequestParam BigDecimal amount) {
-
-        CurrencyConversionDTO dto = exchangeRateApplicationService.convertAmount(from, to, amount);
+    @GetMapping("/conversions")
+    public ResponseEntity<CurrencyConversionDTO> convert(
+            @Valid @ModelAttribute CurrencyConversionRequest request) {
+        CurrencyConversionDTO dto = exchangeRateApplicationService.convertAmount(
+                request.fromCurrency(), request.toCurrency(), request.amount());
         return ResponseEntity.ok(dto);
     }
-    
-    
 }

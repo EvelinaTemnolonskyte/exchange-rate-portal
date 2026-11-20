@@ -1,4 +1,4 @@
-package lt.fxportal.Domain.Services;
+package lt.fxportal.domain.services;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

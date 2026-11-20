@@ -1,4 +1,4 @@
-package lt.fxportal.Config;
+package lt.fxportal.config;
 
 import java.time.Duration;
 

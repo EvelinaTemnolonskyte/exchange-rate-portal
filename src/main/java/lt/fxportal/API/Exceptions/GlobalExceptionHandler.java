@@ -1,4 +1,4 @@
-package lt.fxportal.API.Exceptions;
+package lt.fxportal.api.exceptions;
 
 import java.util.List;
 
@@ -10,13 +10,14 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import jakarta.servlet.http.HttpServletRequest;
-import lt.fxportal.ApplicationServices.Exceptions.CurrencyNotFoundException;
-import lt.fxportal.ApplicationServices.Exceptions.ExchangeRateNotFoundException;
-import lt.fxportal.ApplicationServices.Exceptions.InvalidAmountException;
-import lt.fxportal.ApplicationServices.Exceptions.InvalidDateRangeException;
+import lt.fxportal.applicationservices.exceptions.CurrencyNotFoundException;
+import lt.fxportal.applicationservices.exceptions.ExchangeRateNotFoundException;
+import lt.fxportal.applicationservices.exceptions.InvalidAmountException;
+import lt.fxportal.applicationservices.exceptions.InvalidDateRangeException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -53,6 +54,12 @@ public class GlobalExceptionHandler {
                 .toList();
         return ResponseEntity.badRequest()
                 .body(ErrorResponse.of(HttpStatus.BAD_REQUEST, "Validation failed", req.getRequestURI(), details));
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<ErrorResponse> handleMethodValidation(HandlerMethodValidationException ex,
+                                                                 HttpServletRequest req) {
+        return build(HttpStatus.BAD_REQUEST, "Validation failed", req);
     }
 
     @ExceptionHandler(Exception.class)

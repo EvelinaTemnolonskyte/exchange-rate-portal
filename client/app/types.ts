@@ -5,13 +5,13 @@ export type RateHistoryItem = {
 
 export type Currency = {
   code: string;
-  nameEn: string;
-  numCode: string;
-  decimals: number;
+  englishName: string;
+  numericCode: string | null;
+  minorUnitDigits: number | null;
 };
 
 export type ExchangeRate = {
-  currency: string;
+  currencyCode: string;
   date: string;
   rate: number;
 };

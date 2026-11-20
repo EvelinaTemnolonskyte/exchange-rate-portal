@@ -1,4 +1,4 @@
-package lt.fxportal.InfrastructureServices;
+package lt.fxportal.infrastructureservices;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import lombok.AllArgsConstructor;
 
-import lt.fxportal.ApplicationServices.CurrencyApplicationService;
-import lt.fxportal.ApplicationServices.ExchangeRateApplicationService;
+import lt.fxportal.applicationservices.CurrencyApplicationService;
+import lt.fxportal.applicationservices.ExchangeRateApplicationService;
 
 @Service
 @AllArgsConstructor

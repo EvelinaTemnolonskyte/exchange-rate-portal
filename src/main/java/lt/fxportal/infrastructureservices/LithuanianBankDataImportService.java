@@ -1,4 +1,4 @@
-package lt.fxportal.InfrastructureServices;
+package lt.fxportal.infrastructureservices;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -10,31 +10,31 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.AllArgsConstructor;
-import lt.fxportal.API.DTOs.lbLtFxRates.CurrencyAmount;
-import lt.fxportal.API.DTOs.lbLtFxRates.CurrencyData;
-import lt.fxportal.API.DTOs.lbLtFxRates.DailyFxRate;
-import lt.fxportal.Domain.Entities.Currency;
-import lt.fxportal.Domain.Entities.ExchangeRate;
-import lt.fxportal.Mappers.lbLtFxRates.LbCurrencyMapper;
-import lt.fxportal.Mappers.lbLtFxRates.LbExchangeRateMapper;
-import lt.fxportal.Repositories.ICurrencyRepository;
-import lt.fxportal.Repositories.IExchangeRateRepository;
+import lt.fxportal.domain.entities.Currency;
+import lt.fxportal.domain.entities.ExchangeRate;
+import lt.fxportal.mappers.lithuanianbankfxrates.LithuanianBankCurrencyMapper;
+import lt.fxportal.mappers.lithuanianbankfxrates.LithuanianBankExchangeRateMapper;
+import lt.fxportal.repositories.ICurrencyRepository;
+import lt.fxportal.repositories.IExchangeRateRepository;
+import lt.fxportal.api.dtos.lithuanianbankfxrates.CurrencyAmount;
+import lt.fxportal.api.dtos.lithuanianbankfxrates.CurrencyData;
+import lt.fxportal.api.dtos.lithuanianbankfxrates.DailyFxRate;
 
 @Service
 @AllArgsConstructor
-public class LbDataImportService {
+public class LithuanianBankDataImportService {
 
-    private static final Logger log = LoggerFactory.getLogger(LbDataImportService.class);
+    private static final Logger log = LoggerFactory.getLogger(LithuanianBankDataImportService.class);
 
-    private final LbClient lbClient;
-    private final LbExchangeRateMapper lbExchangeRateMapper;
-    private final LbCurrencyMapper lbCurrencyMapper;
+    private final LithuanianBankApiClient lithuanianBankApiClient;
+    private final LithuanianBankExchangeRateMapper lithuanianBankExchangeRateMapper;
+    private final LithuanianBankCurrencyMapper lithuanianBankCurrencyMapper;
     private final IExchangeRateRepository exchangeRateRepository;
     private final ICurrencyRepository currencyRepository;
 
     @Transactional
     public void importExchangeRates() throws Exception {
-        List<DailyFxRate> externalRates = lbClient.getCurrentFxRatesXml();
+        List<DailyFxRate> externalRates = lithuanianBankApiClient.getCurrentFxRatesXml();
         List<ExchangeRate> entities = new ArrayList<>();
         for (DailyFxRate dailyRate : externalRates) {
             for (CurrencyAmount currencyAmount : dailyRate.getCurrencyAmounts()) {
@@ -44,7 +44,7 @@ public class LbDataImportService {
                 }
 
                 currencyRepository.findById(currencyCode).ifPresentOrElse(
-                        currency -> entities.add(lbExchangeRateMapper.toEntity(
+                        currency -> entities.add(lithuanianBankExchangeRateMapper.toEntity(
                                 currencyAmount, currency, LocalDate.parse(dailyRate.getDate()))),
                         () -> log.warn("Skipped unknown currency: {}", currencyCode));
             }
@@ -60,9 +60,9 @@ public class LbDataImportService {
 
     @Transactional
     public void importCurrencies() throws Exception {
-        List<CurrencyData> externalCurrencies = lbClient.getCurrencyListXml();
+        List<CurrencyData> externalCurrencies = lithuanianBankApiClient.getCurrencyListXml();
         List<Currency> entities = externalCurrencies.stream()
-            .map(lbCurrencyMapper::toEntity)
+            .map(lithuanianBankCurrencyMapper::toEntity)
             .filter(c -> !currencyRepository.existsById(c.getCode()))
             .toList();
 

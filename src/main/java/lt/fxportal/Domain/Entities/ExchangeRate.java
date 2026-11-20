@@ -1,4 +1,4 @@
-package lt.fxportal.Domain.Entities;
+package lt.fxportal.domain.entities;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

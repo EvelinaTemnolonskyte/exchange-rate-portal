@@ -1,15 +1,16 @@
-package lt.fxportal.Mappers.lbLtFxRates;
+package lt.fxportal.mappers.lithuanianbankfxrates;
 
 import java.time.LocalDate;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import lt.fxportal.API.DTOs.lbLtFxRates.CurrencyAmount;
-import lt.fxportal.Domain.Entities.Currency;
-import lt.fxportal.Domain.Entities.ExchangeRate;
+
+import lt.fxportal.domain.entities.Currency;
+import lt.fxportal.domain.entities.ExchangeRate;
+import lt.fxportal.api.dtos.lithuanianbankfxrates.CurrencyAmount;
 
 @Mapper(componentModel = "spring")
-public interface LbExchangeRateMapper {
+public interface LithuanianBankExchangeRateMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "currency", source = "currency")
     @Mapping(target = "date", source = "date")

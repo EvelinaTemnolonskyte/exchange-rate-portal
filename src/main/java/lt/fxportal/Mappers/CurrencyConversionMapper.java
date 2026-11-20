@@ -1,10 +1,11 @@
-package lt.fxportal.Mappers;
+package lt.fxportal.mappers;
 
 import java.math.BigDecimal;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import lt.fxportal.API.DTOs.CurrencyConversionDTO;
+
+import lt.fxportal.api.dtos.CurrencyConversionDTO;
 
 @Mapper(componentModel = "spring")
 public interface CurrencyConversionMapper {

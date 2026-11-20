@@ -1,4 +1,4 @@
-package lt.fxportal.Domain.Entities;
+package lt.fxportal.domain.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,11 +23,11 @@ public class Currency {
     private String code;
 
     @Column(name = "name_en", nullable = false)
-    private String nameEn;
+    private String englishName;
 
     @Column(name = "num_code")
-    private String numCode;
+    private String numericCode;
 
     @Column(name = "decimals")
-    private Integer decimals;
+    private Integer minorUnitDigits;
 }

@@ -1,4 +1,4 @@
-package lt.fxportal.Repositories;
+package lt.fxportal.repositories;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import lt.fxportal.Domain.Entities.ExchangeRate;
+import lt.fxportal.domain.entities.ExchangeRate;
 
 public interface IExchangeRateRepository extends JpaRepository<ExchangeRate, UUID>{
     boolean existsByCurrency_CodeAndDate(String currencyCode, LocalDate date);

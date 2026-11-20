@@ -1,6 +1,6 @@
-package lt.fxportal.InfrastructureServices;
+package lt.fxportal.infrastructureservices;
 
-import lt.fxportal.ApplicationServices.ExchangeRateApplicationService;
+import lt.fxportal.applicationservices.ExchangeRateApplicationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +9,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import lombok.AllArgsConstructor;
-import lt.fxportal.ApplicationServices.CurrencyApplicationService;
+import lt.fxportal.applicationservices.CurrencyApplicationService;
 
 @Component
 @AllArgsConstructor

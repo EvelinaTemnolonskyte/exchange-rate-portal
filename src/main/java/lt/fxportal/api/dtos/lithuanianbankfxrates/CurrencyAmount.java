@@ -1,4 +1,4 @@
-package lt.fxportal.API.DTOs.lbLtFxRates;
+package lt.fxportal.api.dtos.lithuanianbankfxrates;
 
 import java.math.BigDecimal;
 
@@ -15,4 +15,3 @@ public class CurrencyAmount {
     @JacksonXmlProperty(localName = "Amt")
     private BigDecimal amount;
 }
-

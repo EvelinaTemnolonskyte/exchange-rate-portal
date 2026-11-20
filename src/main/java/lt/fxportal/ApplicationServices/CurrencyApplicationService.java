@@ -1,19 +1,19 @@
-package lt.fxportal.ApplicationServices;
+package lt.fxportal.applicationservices;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.AllArgsConstructor;
-
-import lt.fxportal.API.DTOs.CurrencyDTO;
-import lt.fxportal.ApplicationServices.Exceptions.CurrencyNotFoundException;
-import lt.fxportal.Domain.Entities.Currency;
-import lt.fxportal.InfrastructureServices.LbDataImportService;
-import lt.fxportal.Mappers.CurrencyMapper;
-import lt.fxportal.Repositories.ICurrencyRepository;
-import lt.fxportal.Repositories.IExchangeRateRepository;
+import lt.fxportal.applicationservices.exceptions.CurrencyNotFoundException;
+import lt.fxportal.domain.entities.Currency;
+import lt.fxportal.infrastructureservices.LithuanianBankDataImportService;
+import lt.fxportal.mappers.CurrencyMapper;
+import lt.fxportal.repositories.ICurrencyRepository;
+import lt.fxportal.repositories.IExchangeRateRepository;
+import lt.fxportal.api.dtos.CurrencyDTO;
 
 @Service
 @AllArgsConstructor
@@ -24,11 +24,11 @@ public class CurrencyApplicationService {
     private final ICurrencyRepository currencyRepository;
     private final IExchangeRateRepository exchangeRateRepository;
     private final CurrencyMapper currencyMapper;
-    private final LbDataImportService lbDataImportService;
+    private final LithuanianBankDataImportService lithuanianBankDataImportService;
 
     @Transactional
     public void fetchAndSaveCurrencies() throws Exception {
-        lbDataImportService.importCurrencies();
+        lithuanianBankDataImportService.importCurrencies();
     }
 
     @Transactional(readOnly = true)
@@ -38,7 +38,7 @@ public class CurrencyApplicationService {
 
     @Transactional(readOnly = true)
     public CurrencyDTO getCurrencyByCode(String code) {
-        return currencyRepository.findById(code)
+        return currencyRepository.findById(code.toUpperCase(Locale.ROOT))
             .map(currencyMapper::toDTO)
             .orElseThrow(() -> 
                 new CurrencyNotFoundException("Currency with code '" + code + "' not found"));

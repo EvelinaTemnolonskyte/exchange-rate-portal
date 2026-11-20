@@ -1,4 +1,4 @@
-package lt.fxportal.ApplicationServices.Exceptions;
+package lt.fxportal.applicationservices.exceptions;
 
 
 public class InvalidAmountException extends RuntimeException {

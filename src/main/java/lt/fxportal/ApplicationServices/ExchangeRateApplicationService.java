@@ -1,26 +1,27 @@
-package lt.fxportal.ApplicationServices;
+package lt.fxportal.applicationservices;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Locale;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import lt.fxportal.API.DTOs.CurrencyConversionDTO;
-import lt.fxportal.API.DTOs.ExchangeRateDTO;
-import lt.fxportal.ApplicationServices.Exceptions.CurrencyNotFoundException;
-import lt.fxportal.ApplicationServices.Exceptions.InvalidAmountException;
-import lt.fxportal.ApplicationServices.Exceptions.InvalidDateRangeException;
-import lt.fxportal.Domain.Entities.ExchangeRate;
-import lt.fxportal.Domain.Services.CurrencyConverter;
-import lt.fxportal.InfrastructureServices.LbDataImportService;
-import lt.fxportal.Mappers.CurrencyConversionMapper;
+import lt.fxportal.applicationservices.exceptions.CurrencyNotFoundException;
+import lt.fxportal.applicationservices.exceptions.InvalidAmountException;
+import lt.fxportal.applicationservices.exceptions.InvalidDateRangeException;
+import lt.fxportal.domain.entities.ExchangeRate;
+import lt.fxportal.domain.services.CurrencyConverter;
+import lt.fxportal.infrastructureservices.LithuanianBankDataImportService;
+import lt.fxportal.mappers.CurrencyConversionMapper;
 
-import lt.fxportal.Mappers.ExchangeRateMapper;
-import lt.fxportal.Repositories.ICurrencyRepository;
-import lt.fxportal.Repositories.IExchangeRateRepository;
+import lt.fxportal.mappers.ExchangeRateMapper;
+import lt.fxportal.repositories.ICurrencyRepository;
+import lt.fxportal.repositories.IExchangeRateRepository;
+import lt.fxportal.api.dtos.CurrencyConversionDTO;
+import lt.fxportal.api.dtos.ExchangeRateDTO;
 
 
 @Service
@@ -36,11 +37,11 @@ public class ExchangeRateApplicationService {
     private final CurrencyConversionMapper currencyConversionMapper;
     private final CurrencyConverter currencyConverter;
 
-    private final LbDataImportService lbDataImportService;
+    private final LithuanianBankDataImportService lithuanianBankDataImportService;
 
     @Transactional
     public void fetchAndSaveCurrentRates() throws Exception {
-        lbDataImportService.importExchangeRates();
+        lithuanianBankDataImportService.importExchangeRates();
     }
 
     public List<ExchangeRateDTO> getAllRates() {
@@ -54,7 +55,8 @@ public class ExchangeRateApplicationService {
     }
 
     public List<ExchangeRateDTO> getRatesForCurrency(String currency, LocalDate from, LocalDate to) {
-        if (!currencyRepository.existsById(currency)) {
+        String normalizedCurrency = normalizeCurrencyCode(currency);
+        if (!currencyRepository.existsById(normalizedCurrency)) {
             throw new CurrencyNotFoundException("Currency not found: " + currency);
         }
 
@@ -62,7 +64,7 @@ public class ExchangeRateApplicationService {
             throw new InvalidDateRangeException("'to' date cannot be before 'from' date");
         }
 
-        List<ExchangeRate> rates = exchangeRateRepository.findByCurrencyAndOptionalDates(currency, from, to);
+        List<ExchangeRate> rates = exchangeRateRepository.findByCurrencyAndOptionalDates(normalizedCurrency, from, to);
         return exchangeRateMapper.toDTOList(rates);
     }
 
@@ -71,22 +73,29 @@ public class ExchangeRateApplicationService {
             throw new InvalidAmountException("Amount must be non-negative");
         }
 
-        BigDecimal fromRate = getLatestRate(from);
-        BigDecimal toRate = getLatestRate(to);
+        String normalizedFrom = normalizeCurrencyCode(from);
+        String normalizedTo = normalizeCurrencyCode(to);
+        BigDecimal fromRate = getLatestRate(normalizedFrom);
+        BigDecimal toRate = getLatestRate(normalizedTo);
 
         BigDecimal rateUsed = currencyConverter.getRate(fromRate, toRate);
         BigDecimal convertedAmount = currencyConverter.convert(amount, rateUsed);
 
-        return currencyConversionMapper.toDTO(from, to, amount, convertedAmount, rateUsed);
+        return currencyConversionMapper.toDTO(normalizedFrom, normalizedTo, amount, convertedAmount, rateUsed);
     }
 
     private BigDecimal getLatestRate(String currencyCode) {
-        if (currencyCode.equalsIgnoreCase(BASE_CURRENCY)) {
+        String normalizedCurrencyCode = normalizeCurrencyCode(currencyCode);
+        if (normalizedCurrencyCode.equals(BASE_CURRENCY)) {
             return BigDecimal.ONE;
         }
-        return exchangeRateRepository.findTopByCurrency_CodeOrderByDateDesc(currencyCode)
+        return exchangeRateRepository.findTopByCurrency_CodeOrderByDateDesc(normalizedCurrencyCode)
             .map(ExchangeRate::getRate)
             .orElseThrow(() -> 
-                new CurrencyNotFoundException("Currency not found: " + currencyCode));
+                new CurrencyNotFoundException("Currency not found: " + normalizedCurrencyCode));
+    }
+
+    private String normalizeCurrencyCode(String currencyCode) {
+        return currencyCode.toUpperCase(Locale.ROOT);
     }
 }

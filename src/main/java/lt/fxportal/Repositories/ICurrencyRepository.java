@@ -1,6 +1,6 @@
-package lt.fxportal.Repositories;
+package lt.fxportal.repositories;
 
-import lt.fxportal.Domain.Entities.Currency;
+import lt.fxportal.domain.entities.Currency;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

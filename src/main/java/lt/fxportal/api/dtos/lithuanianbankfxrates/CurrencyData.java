@@ -1,4 +1,4 @@
-package lt.fxportal.API.DTOs.lbLtFxRates;
+package lt.fxportal.api.dtos.lithuanianbankfxrates;
 
 import java.util.List;
 
@@ -13,17 +13,15 @@ import lombok.Data;
 public class CurrencyData {
 
     @JacksonXmlProperty(localName = "Ccy")
-    private String code;
+    private String currencyCode;
 
     @JacksonXmlElementWrapper(useWrapping = false)
     @JacksonXmlProperty(localName = "CcyNm")
-    private List<CurrencyName> names;
-
+    private List<CurrencyName> localizedNames;
 
     @JacksonXmlProperty(localName = "CcyNbr")
-    private String numCode;
+    private String numericCode;
 
     @JacksonXmlProperty(localName = "CcyMnrUnts")
-    private int decimals; 
-
+    private int minorUnitDigits;
 }

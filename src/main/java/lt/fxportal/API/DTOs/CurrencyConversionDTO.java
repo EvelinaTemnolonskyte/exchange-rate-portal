@@ -1,30 +1,11 @@
-package lt.fxportal.API.DTOs;
+package lt.fxportal.api.dtos;
 
 import java.math.BigDecimal;
 
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class CurrencyConversionDTO {
-    @NotNull
-    private String fromCurrency;
-
-    @NotNull
-    private String toCurrency;
-
-    @NotNull
-    private BigDecimal originalAmount;
-
-    @NotNull
-    private BigDecimal convertedAmount;
-
-    @NotNull
-    private BigDecimal rateUsed; 
+public record CurrencyConversionDTO(
+        String fromCurrency,
+        String toCurrency,
+        BigDecimal originalAmount,
+        BigDecimal convertedAmount,
+        BigDecimal rateUsed) {
 }

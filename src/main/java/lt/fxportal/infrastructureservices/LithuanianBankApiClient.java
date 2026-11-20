@@ -1,4 +1,4 @@
-package lt.fxportal.InfrastructureServices;
+package lt.fxportal.infrastructureservices;
 
 import java.util.List;
 
@@ -11,15 +11,15 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
-import lt.fxportal.API.DTOs.lbLtFxRates.CurrencyData;
-import lt.fxportal.API.DTOs.lbLtFxRates.CurrencyList;
-import lt.fxportal.API.DTOs.lbLtFxRates.DailyFxRate;
-import lt.fxportal.API.DTOs.lbLtFxRates.DailyFxRateList;
+import lt.fxportal.api.dtos.lithuanianbankfxrates.CurrencyData;
+import lt.fxportal.api.dtos.lithuanianbankfxrates.CurrencyList;
+import lt.fxportal.api.dtos.lithuanianbankfxrates.DailyFxRate;
+import lt.fxportal.api.dtos.lithuanianbankfxrates.DailyFxRateList;
 
 @Service
-public class LbClient {
+public class LithuanianBankApiClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(LbClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(LithuanianBankApiClient.class);
 
     private final RestTemplate restTemplate;
     private final String baseUrl;
@@ -28,8 +28,8 @@ public class LbClient {
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .build();
 
-    public LbClient(RestTemplate restTemplate,
-                    @Value("${lb.api.base-url:https://www.lb.lt/webservices/FxRates/FxRates.asmx}") String baseUrl) {
+    public LithuanianBankApiClient(RestTemplate restTemplate,
+                    @Value("${lithuanian-bank.api.base-url:https://www.lb.lt/webservices/FxRates/FxRates.asmx}") String baseUrl) {
         this.restTemplate = restTemplate;
         this.baseUrl = baseUrl;
     }
@@ -41,8 +41,8 @@ public class LbClient {
         String xml = restTemplate.getForObject(url, String.class);
         CurrencyList currencyList = xmlMapper.readValue(xml, CurrencyList.class);
 
-        logger.info("Fetched {} currencies", currencyList.getCcyNtry().size());
-        return currencyList.getCcyNtry();
+        logger.info("Fetched {} currencies", currencyList.getCurrencyEntries().size());
+        return currencyList.getCurrencyEntries();
     }
 
     public List<DailyFxRate> getCurrentFxRatesXml() throws Exception {

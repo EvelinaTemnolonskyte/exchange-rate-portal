@@ -1,4 +1,4 @@
-package lt.fxportal.API.Exceptions;
+package lt.fxportal.api.exceptions;
 
 import java.time.Instant;
 import java.util.List;
