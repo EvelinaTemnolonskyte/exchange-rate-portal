@@ -4,30 +4,33 @@ import { useEffect, useState } from "react";
 import { Currency, ExchangeRate, RateHistoryItem } from "@/app/types";
 import Header from "@/app/components/Header";
 import CurrencySelect from "@/app/components/CurrencySelect";
+import { ensureResponseOk, getRequestErrorMessage } from "@/app/apiErrors";
 
 export default function HistoryPage() {
   const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [currenciesLoaded, setCurrenciesLoaded] = useState(false); 
+  const [currenciesError, setCurrenciesError] = useState("");
   const [selectedCurrency, setSelectedCurrency] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [history, setHistory] = useState<RateHistoryItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [historyError, setHistoryError] = useState("");
   const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
     const fetchCurrencies = async () => {
       try {
         const res = await fetch("/api/currencies?withRates=true");
-        if (!res.ok) throw new Error(`Failed to fetch currencies: ${res.status}`);
+        await ensureResponseOk(res, "Unable to load currencies. Please try again.");
 
         setCurrencies(await res.json() as Currency[]);
         setCurrenciesLoaded(true);
       } catch (err) {
-        console.error(err);
+        console.error("Currency loading error:", err);
         setCurrencies([]);
         setCurrenciesLoaded(false);
-        alert("Unable to fetch currencies. Please try again later."); 
+        setCurrenciesError(getRequestErrorMessage(err, "Unable to load currencies. Please try again."));
       }
     };
     fetchCurrencies();
@@ -46,6 +49,7 @@ export default function HistoryPage() {
 
     const loadHistory = async () => {
       setLoading(true);
+      setHistoryError("");
       try {
         const params = new URLSearchParams();
         if (fromDate) params.set("fromDate", fromDate);
@@ -54,15 +58,14 @@ export default function HistoryPage() {
         const url = `/api/currencies/${encodeURIComponent(selectedCurrency)}/rates${query ? `?${query}` : ""}`;
 
         const res = await fetch(url);
-        if (!res.ok) {
-          throw new Error(`Failed to fetch exchange rates: ${res.status} ${res.statusText}`);
-        }
+        await ensureResponseOk(res, "Unable to load exchange-rate history. Please try again.");
 
         const rates = await res.json() as ExchangeRate[];
         setHistory(rates.map(({ date, rate }) => ({ date, rate })) satisfies RateHistoryItem[]);
       } catch (err) {
         console.error("Error loading history:", err);
         setHistory([]);
+        setHistoryError(getRequestErrorMessage(err, "Unable to load exchange-rate history. Please try again."));
       } finally {
         setLoading(false);
       }
@@ -116,9 +119,13 @@ export default function HistoryPage() {
           </div>
         </div>
 
+        {currenciesError && <p role="alert" className="text-red-600 mt-4">{currenciesError}</p>}
+
         {loading && <p>Loading history...</p>}
 
-        {!loading && history.length === 0 && selectedCurrency && (
+        {historyError && <p role="alert" className="text-red-600 mt-4">{historyError}</p>}
+
+        {!loading && !historyError && history.length === 0 && selectedCurrency && (
             <p className="text-center text-gray-500 mt-4">
                 No data found for selected currency and dates.
             </p>

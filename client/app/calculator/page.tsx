@@ -5,6 +5,7 @@ import { Currency, CurrencyConversion } from "@/app/types";
 import Header from "@/app/components/Header";
 import CurrencySelect from "@/app/components/CurrencySelect";
 import ResultCard from "@/app/components/ResultCard";
+import { ensureResponseOk, getRequestErrorMessage } from "@/app/apiErrors";
 
 export default function CalculatorPage() {
     const [currencies, setCurrencies] = useState<Currency[]>([]);
@@ -14,23 +15,20 @@ export default function CalculatorPage() {
     const [convertedAmount, setConvertedAmount] = useState<number | null>(null);
     const [rateUsed, setRateUsed] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
+    const [currenciesError, setCurrenciesError] = useState("");
     const [error, setError] = useState("");
+    const toCurrencyMinorUnitDigits =
+        currencies.find((currency) => currency.code === toCurrency)?.minorUnitDigits ?? 2;
 
     useEffect(() => {
         const fetchCurrencies = async () => {
             try {
                 const res = await fetch("/api/currencies?withRates=true");
-
-                if (!res.ok) {
-                    throw new Error(`Failed to fetch currencies: ${res.status} ${res.statusText}`);
-                }
-
+                await ensureResponseOk(res, "Unable to load currencies. Please try again.");
                 setCurrencies(await res.json() as Currency[]);
             } catch (err) {
-                const msg = (err as Error).message || "Internal server error while fetching currencies.";
-                console.error(msg, err);
-                setError(msg);
-                alert(msg); 
+                console.error("Currency loading error:", err);
+                setCurrenciesError(getRequestErrorMessage(err, "Unable to load currencies. Please try again."));
             }
         };
 
@@ -51,16 +49,14 @@ export default function CalculatorPage() {
         try {
             const params = new URLSearchParams({ fromCurrency, toCurrency, amount });
             const res = await fetch(`/api/conversions?${params}`);
-            if (!res.ok) {
-                throw new Error(`Conversion failed: ${res.status} ${res.statusText}`);
-            }
+            await ensureResponseOk(res, "Couldn't convert that amount. Check your selections and try again.");
 
             const conversion = await res.json() as CurrencyConversion;
             setConvertedAmount(conversion.convertedAmount);
             setRateUsed(conversion.rateUsed);
         } catch (err) {
             console.error("Conversion error:", err);
-            setError((err as Error).message || "Failed to convert currency.");
+            setError(getRequestErrorMessage(err, "Couldn't convert that amount. Please try again."));
         } finally {
             setLoading(false);
         }
@@ -125,6 +121,7 @@ export default function CalculatorPage() {
                 </button>
 
                 {error && <p className="text-red-500 mt-4">{error}</p>}
+                {currenciesError && <p role="alert" className="text-red-600 mt-4">{currenciesError}</p>}
 
                 {convertedAmount !== null && rateUsed !== null && !error && (
                     <ResultCard
@@ -133,6 +130,7 @@ export default function CalculatorPage() {
                         to={toCurrency}
                         converted={convertedAmount}
                         rate={rateUsed}
+                        minorUnitDigits={toCurrencyMinorUnitDigits}
                     />
                 )}
             </section>
