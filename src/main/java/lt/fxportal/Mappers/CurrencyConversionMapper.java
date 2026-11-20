@@ -2,25 +2,18 @@ package lt.fxportal.Mappers;
 
 import java.math.BigDecimal;
 
-import org.springframework.stereotype.Component;
-
-import lombok.AllArgsConstructor;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import lt.fxportal.API.DTOs.CurrencyConversionDTO;
 
-@Component
-@AllArgsConstructor
-public class CurrencyConversionMapper {
-    
-    public CurrencyConversionDTO toDTO(String fromCurrency, String toCurrency, 
-                                      BigDecimal originalAmount, BigDecimal convertedAmount, 
-                                      BigDecimal rateUsed){
-        return CurrencyConversionDTO.builder()
-                .fromCurrency(fromCurrency)
-                .toCurrency(toCurrency)
-                .originalAmount(originalAmount)
-                .convertedAmount(convertedAmount)
-                .rateUsed(rateUsed)
-                .build();
-    }
-
+@Mapper(componentModel = "spring")
+public interface CurrencyConversionMapper {
+    @Mapping(target = "fromCurrency", source = "fromCurrency")
+    @Mapping(target = "toCurrency", source = "toCurrency")
+    @Mapping(target = "originalAmount", source = "originalAmount")
+    @Mapping(target = "convertedAmount", source = "convertedAmount")
+    @Mapping(target = "rateUsed", source = "rateUsed")
+    CurrencyConversionDTO toDTO(String fromCurrency, String toCurrency,
+                                BigDecimal originalAmount, BigDecimal convertedAmount,
+                                BigDecimal rateUsed);
 }
