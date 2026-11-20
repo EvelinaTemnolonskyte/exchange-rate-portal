@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.AllArgsConstructor;
 import lt.fxportal.applicationservices.CurrencyApplicationService;
+import lt.fxportal.applicationservices.models.CurrencyView;
 import lt.fxportal.api.dtos.CurrencyDTO;
 
 import java.util.List;
@@ -28,16 +29,24 @@ public class CurrencyController {
     @GetMapping
     public ResponseEntity<List<CurrencyDTO>> getCurrencies(
             @RequestParam(name = "withRates", defaultValue = "false") boolean withRates) {
-        List<CurrencyDTO> currencies = withRates
+        List<CurrencyView> currencies = withRates
                 ? currencyApplicationService.getCurrenciesWithRates()
                 : currencyApplicationService.getAllCurrencies();
-        return ResponseEntity.ok(currencies);
+        return ResponseEntity.ok(currencies.stream().map(this::toDto).toList());
     }
 
     @GetMapping("/{currencyCode}")
     public ResponseEntity<CurrencyDTO> getCurrencyByCode(
             @PathVariable @NotBlank @Pattern(regexp = "(?i)^[A-Z]{3}$") String currencyCode) {
-        CurrencyDTO dto = currencyApplicationService.getCurrencyByCode(currencyCode);
-        return ResponseEntity.ok(dto);
+        CurrencyView currency = currencyApplicationService.getCurrencyByCode(currencyCode);
+        return ResponseEntity.ok(toDto(currency));
+    }
+
+    private CurrencyDTO toDto(CurrencyView currency) {
+        return new CurrencyDTO(
+                currency.code(),
+                currency.englishName(),
+                currency.numericCode(),
+                currency.minorUnitDigits());
     }
 }

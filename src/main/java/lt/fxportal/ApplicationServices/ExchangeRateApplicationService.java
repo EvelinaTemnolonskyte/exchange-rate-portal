@@ -12,9 +12,9 @@ import lombok.AllArgsConstructor;
 import lt.fxportal.applicationservices.exceptions.CurrencyNotFoundException;
 import lt.fxportal.applicationservices.exceptions.InvalidAmountException;
 import lt.fxportal.applicationservices.exceptions.InvalidDateRangeException;
+import lt.fxportal.applicationservices.ports.ReferenceDataImporter;
 import lt.fxportal.domain.entities.ExchangeRate;
 import lt.fxportal.domain.services.CurrencyConverter;
-import lt.fxportal.infrastructureservices.LithuanianBankDataImportService;
 import lt.fxportal.mappers.CurrencyConversionMapper;
 
 import lt.fxportal.mappers.ExchangeRateMapper;
@@ -37,11 +37,11 @@ public class ExchangeRateApplicationService {
     private final CurrencyConversionMapper currencyConversionMapper;
     private final CurrencyConverter currencyConverter;
 
-    private final LithuanianBankDataImportService lithuanianBankDataImportService;
+    private final ReferenceDataImporter referenceDataImporter;
 
     @Transactional
-    public void fetchAndSaveCurrentRates() throws Exception {
-        lithuanianBankDataImportService.importExchangeRates();
+    public void fetchAndSaveCurrentRates() {
+        referenceDataImporter.importExchangeRates();
     }
 
     public List<ExchangeRateDTO> getAllRates() {

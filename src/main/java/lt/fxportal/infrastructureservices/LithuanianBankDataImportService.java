@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.AllArgsConstructor;
+import lt.fxportal.applicationservices.exceptions.DataImportException;
+import lt.fxportal.applicationservices.ports.ReferenceDataImporter;
 import lt.fxportal.domain.entities.Currency;
 import lt.fxportal.domain.entities.ExchangeRate;
 import lt.fxportal.mappers.lithuanianbankfxrates.LithuanianBankCurrencyMapper;
@@ -22,7 +24,7 @@ import lt.fxportal.api.dtos.lithuanianbankfxrates.DailyFxRate;
 
 @Service
 @AllArgsConstructor
-public class LithuanianBankDataImportService {
+public class LithuanianBankDataImportService implements ReferenceDataImporter {
 
     private static final Logger log = LoggerFactory.getLogger(LithuanianBankDataImportService.class);
 
@@ -32,8 +34,17 @@ public class LithuanianBankDataImportService {
     private final IExchangeRateRepository exchangeRateRepository;
     private final ICurrencyRepository currencyRepository;
 
+    @Override
     @Transactional
-    public void importExchangeRates() throws Exception {
+    public void importExchangeRates() {
+        try {
+            importExchangeRatesFromBank();
+        } catch (Exception exception) {
+            throw new DataImportException("Failed to import exchange rates from Lithuanian Bank", exception);
+        }
+    }
+
+    private void importExchangeRatesFromBank() throws Exception {
         List<DailyFxRate> externalRates = lithuanianBankApiClient.getCurrentFxRatesXml();
         List<ExchangeRate> entities = new ArrayList<>();
         for (DailyFxRate dailyRate : externalRates) {
@@ -58,8 +69,17 @@ public class LithuanianBankDataImportService {
         exchangeRateRepository.saveAll(newRates);
     }
 
+    @Override
     @Transactional
-    public void importCurrencies() throws Exception {
+    public void importCurrencies() {
+        try {
+            importCurrenciesFromBank();
+        } catch (Exception exception) {
+            throw new DataImportException("Failed to import currencies from Lithuanian Bank", exception);
+        }
+    }
+
+    private void importCurrenciesFromBank() throws Exception {
         List<CurrencyData> externalCurrencies = lithuanianBankApiClient.getCurrencyListXml();
         List<Currency> entities = externalCurrencies.stream()
             .map(lithuanianBankCurrencyMapper::toEntity)

@@ -8,12 +8,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.AllArgsConstructor;
 import lt.fxportal.applicationservices.exceptions.CurrencyNotFoundException;
+import lt.fxportal.applicationservices.mappers.CurrencyViewMapper;
+import lt.fxportal.applicationservices.models.CurrencyView;
+import lt.fxportal.applicationservices.ports.ReferenceDataImporter;
 import lt.fxportal.domain.entities.Currency;
-import lt.fxportal.infrastructureservices.LithuanianBankDataImportService;
-import lt.fxportal.mappers.CurrencyMapper;
 import lt.fxportal.repositories.ICurrencyRepository;
 import lt.fxportal.repositories.IExchangeRateRepository;
-import lt.fxportal.api.dtos.CurrencyDTO;
 
 @Service
 @AllArgsConstructor
@@ -23,29 +23,29 @@ public class CurrencyApplicationService {
 
     private final ICurrencyRepository currencyRepository;
     private final IExchangeRateRepository exchangeRateRepository;
-    private final CurrencyMapper currencyMapper;
-    private final LithuanianBankDataImportService lithuanianBankDataImportService;
+    private final CurrencyViewMapper currencyViewMapper;
+    private final ReferenceDataImporter referenceDataImporter;
 
     @Transactional
-    public void fetchAndSaveCurrencies() throws Exception {
-        lithuanianBankDataImportService.importCurrencies();
+    public void fetchAndSaveCurrencies() {
+        referenceDataImporter.importCurrencies();
     }
 
     @Transactional(readOnly = true)
-    public List<CurrencyDTO> getAllCurrencies() {
-        return currencyMapper.toDTOList(currencyRepository.findAll());
+    public List<CurrencyView> getAllCurrencies() {
+        return currencyViewMapper.toViewList(currencyRepository.findAll());
     }
 
     @Transactional(readOnly = true)
-    public CurrencyDTO getCurrencyByCode(String code) {
+    public CurrencyView getCurrencyByCode(String code) {
         return currencyRepository.findById(code.toUpperCase(Locale.ROOT))
-            .map(currencyMapper::toDTO)
+            .map(currencyViewMapper::toView)
             .orElseThrow(() -> 
                 new CurrencyNotFoundException("Currency with code '" + code + "' not found"));
     }
 
     @Transactional(readOnly = true)
-    public List<CurrencyDTO> getCurrenciesWithRates() {
+    public List<CurrencyView> getCurrenciesWithRates() {
         List<String> codesWithRates = exchangeRateRepository
                 .findLatestRatesForAllCurrencies()
                 .stream()
@@ -61,6 +61,6 @@ public class CurrencyApplicationService {
             }
         });
 
-        return currencyMapper.toDTOList(currencies);
+        return currencyViewMapper.toViewList(currencies);
     }
 }
