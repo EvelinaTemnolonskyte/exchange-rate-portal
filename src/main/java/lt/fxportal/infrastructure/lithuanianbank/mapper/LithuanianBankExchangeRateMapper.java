@@ -5,8 +5,8 @@ import java.time.LocalDate;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import lt.fxportal.domain.entities.Currency;
-import lt.fxportal.domain.entities.ExchangeRate;
+import lt.fxportal.domain.entity.Currency;
+import lt.fxportal.domain.entity.ExchangeRate;
 import lt.fxportal.infrastructure.lithuanianbank.dto.CurrencyAmount;
 
 @Mapper(componentModel = "spring")

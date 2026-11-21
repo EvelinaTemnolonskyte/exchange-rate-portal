@@ -3,7 +3,7 @@ package lt.fxportal.infrastructure.lithuanianbank.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import lt.fxportal.domain.entities.Currency;
+import lt.fxportal.domain.entity.Currency;
 import lt.fxportal.infrastructure.lithuanianbank.dto.CurrencyData;
 import lt.fxportal.infrastructure.lithuanianbank.dto.CurrencyName;
 

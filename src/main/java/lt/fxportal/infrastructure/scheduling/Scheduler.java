@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import lombok.AllArgsConstructor;
 
-import lt.fxportal.application.services.CurrencyApplicationService;
-import lt.fxportal.application.services.ExchangeRateApplicationService;
+import lt.fxportal.application.service.CurrencyApplicationService;
+import lt.fxportal.application.service.ExchangeRateApplicationService;
 
 @Service
 @AllArgsConstructor
@@ -24,10 +24,10 @@ public class Scheduler {
             zone = "${lithuanian-bank.import.zone}")
     public void fetchAndSaveDailyRates() {
         try {
-            currencyService.fetchAndSaveCurrencies();
+            currencyService.importCurrencies();
             logger.info("Currencies loaded.");
 
-            exchangeRateService.fetchAndSaveCurrentRates();
+            exchangeRateService.importExchangeRates();
             logger.info("Current FX rates loaded.");
         } catch (Exception e) {
             logger.error("Error fetching data: {}", e.getMessage(), e);
