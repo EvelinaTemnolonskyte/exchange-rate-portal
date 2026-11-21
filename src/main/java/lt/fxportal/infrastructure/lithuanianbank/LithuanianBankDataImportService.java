@@ -1,13 +1,17 @@
 package lt.fxportal.infrastructure.lithuanianbank;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import lombok.AllArgsConstructor;
 import lt.fxportal.application.exception.DataImportException;
@@ -37,7 +41,6 @@ public class LithuanianBankDataImportService implements ReferenceDataImporter {
     private final ICurrencyRepository currencyRepository;
 
     @Override
-    @Transactional
     public void importExchangeRates() {
         try {
             importExchangeRatesFromBank();
@@ -48,31 +51,74 @@ public class LithuanianBankDataImportService implements ReferenceDataImporter {
 
     private void importExchangeRatesFromBank() throws Exception {
         List<DailyFxRate> externalRates = lithuanianBankApiClient.getCurrentFxRatesXml();
-        List<ExchangeRate> entities = new ArrayList<>();
+        Set<String> requestedCurrencyCodes = externalRates.stream()
+                .flatMap(dailyRate -> dailyRate.getCurrencyAmounts().stream())
+                .map(CurrencyAmount::getCurrencyCode)
+                .filter(currencyCode -> !CurrencyCodes.BASE_CURRENCY.equals(currencyCode))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        if (requestedCurrencyCodes.isEmpty()) {
+            return;
+        }
+
+        Map<String, Currency> currenciesByCode = currencyRepository.findAllById(requestedCurrencyCodes).stream()
+                .collect(Collectors.toMap(Currency::getCode, Function.identity(), (existing, duplicate) -> existing));
+
+        Set<String> unknownCurrencyCodes = new LinkedHashSet<>(requestedCurrencyCodes);
+        unknownCurrencyCodes.removeAll(currenciesByCode.keySet());
+        unknownCurrencyCodes.forEach(currencyCode -> log.warn("Skipped unknown currency: {}", currencyCode));
+
+        if (currenciesByCode.isEmpty()) {
+            throw new IllegalStateException("No currency records found for the imported exchange rates; import currencies first");
+        }
+
+        Map<RateKey, ExchangeRate> candidateRates = new LinkedHashMap<>();
         for (DailyFxRate dailyRate : externalRates) {
+            LocalDate rateDate = LocalDate.parse(dailyRate.getDate());
             for (CurrencyAmount currencyAmount : dailyRate.getCurrencyAmounts()) {
                 String currencyCode = currencyAmount.getCurrencyCode();
                 if (CurrencyCodes.BASE_CURRENCY.equals(currencyCode)) {
                     continue;
                 }
 
-                currencyRepository.findById(currencyCode).ifPresentOrElse(
-                        currency -> entities.add(lithuanianBankExchangeRateMapper.toEntity(
-                                currencyAmount, currency, LocalDate.parse(dailyRate.getDate()))),
-                        () -> log.warn("Skipped unknown currency: {}", currencyCode));
+                Currency currency = currenciesByCode.get(currencyCode);
+                if (currency != null) {
+                    RateKey key = new RateKey(currencyCode, rateDate);
+                    candidateRates.putIfAbsent(key,
+                            lithuanianBankExchangeRateMapper.toEntity(currencyAmount, currency, rateDate));
+                }
             }
         }
 
-        List<ExchangeRate> newRates = entities.stream()
-            .filter(rate -> !exchangeRateRepository
-                    .existsByCurrency_CodeAndDate(rate.getCurrency().getCode(), rate.getDate()))
-            .toList();
+        if (candidateRates.isEmpty()) {
+            return;
+        }
 
-        exchangeRateRepository.saveAll(newRates);
+        List<LocalDate> dates = candidateRates.keySet().stream()
+                .map(RateKey::date)
+                .distinct()
+                .toList();
+        List<String> currencyCodes = candidateRates.keySet().stream()
+                .map(RateKey::currencyCode)
+                .distinct()
+                .toList();
+        Set<RateKey> existingRates = exchangeRateRepository
+                .findByDateInAndCurrency_CodeIn(dates, currencyCodes)
+                .stream()
+                .map(rate -> new RateKey(rate.getCurrency().getCode(), rate.getDate()))
+                .collect(Collectors.toSet());
+
+        List<ExchangeRate> newRates = candidateRates.entrySet().stream()
+                .filter(entry -> !existingRates.contains(entry.getKey()))
+                .map(Map.Entry::getValue)
+                .toList();
+
+        if (!newRates.isEmpty()) {
+            exchangeRateRepository.saveAll(newRates);
+        }
     }
 
     @Override
-    @Transactional
     public void importCurrencies() {
         try {
             importCurrenciesFromBank();
@@ -83,13 +129,27 @@ public class LithuanianBankDataImportService implements ReferenceDataImporter {
 
     private void importCurrenciesFromBank() throws Exception {
         List<CurrencyData> externalCurrencies = lithuanianBankApiClient.getCurrencyListXml();
-        List<Currency> entities = externalCurrencies.stream()
-            .map(lithuanianBankCurrencyMapper::toEntity)
-            .filter(c -> !currencyRepository.existsById(c.getCode()))
-            .toList();
+        Map<String, Currency> importedCurrencies = externalCurrencies.stream()
+                .map(lithuanianBankCurrencyMapper::toEntity)
+                .collect(Collectors.toMap(Currency::getCode, Function.identity(), (first, duplicate) -> first,
+                        LinkedHashMap::new));
 
-        if (!entities.isEmpty()) {
-            currencyRepository.saveAll(entities);
+        if (importedCurrencies.isEmpty()) {
+            return;
         }
+
+        Set<String> existingCodes = currencyRepository.findAllById(importedCurrencies.keySet()).stream()
+                .map(Currency::getCode)
+                .collect(Collectors.toSet());
+        List<Currency> newCurrencies = importedCurrencies.values().stream()
+                .filter(currency -> !existingCodes.contains(currency.getCode()))
+                .toList();
+
+        if (!newCurrencies.isEmpty()) {
+            currencyRepository.saveAll(newCurrencies);
+        }
+    }
+
+    private record RateKey(String currencyCode, LocalDate date) {
     }
 }

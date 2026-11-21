@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lt.fxportal.application.exception.CurrencyNotFoundException;
 import lt.fxportal.application.exception.InvalidAmountException;
@@ -38,7 +37,6 @@ public class ExchangeRateApplicationService {
 
     private final ReferenceDataImporter referenceDataImporter;
 
-    @Transactional
     public void importExchangeRates() {
         referenceDataImporter.importExchangeRates();
     }

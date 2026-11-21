@@ -25,7 +25,6 @@ public class CurrencyApplicationService {
     private final CurrencyMapper currencyMapper;
     private final ReferenceDataImporter referenceDataImporter;
 
-    @Transactional
     public void importCurrencies() {
         referenceDataImporter.importCurrencies();
     }
