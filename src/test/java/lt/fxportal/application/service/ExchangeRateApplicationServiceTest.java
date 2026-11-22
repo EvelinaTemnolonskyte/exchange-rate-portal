@@ -22,6 +22,7 @@ import lt.fxportal.api.dto.ExchangeRateDTO;
 import lt.fxportal.api.mapper.CurrencyConversionMapper;
 import lt.fxportal.api.mapper.ExchangeRateMapper;
 import lt.fxportal.application.exception.CurrencyNotFoundException;
+import lt.fxportal.application.exception.ExchangeRateNotFoundException;
 import lt.fxportal.application.exception.InvalidAmountException;
 import lt.fxportal.application.exception.InvalidDateRangeException;
 import lt.fxportal.application.port.ReferenceDataImporter;
@@ -65,6 +66,40 @@ class ExchangeRateApplicationServiceTest {
     }
 
     @Test
+    void getAllRates_returnsMappedRates() {
+        // Arrange
+        List<ExchangeRate> rates = List.of(new ExchangeRate());
+        List<ExchangeRateDTO> expectedDtos = List.of(
+                new ExchangeRateDTO("USD", LocalDate.of(2026, 1, 5), new BigDecimal("1.10")));
+
+        when(exchangeRateRepository.findAll()).thenReturn(rates);
+        when(exchangeRateMapper.toDTOList(rates)).thenReturn(expectedDtos);
+
+        // Act
+        List<ExchangeRateDTO> result = exchangeRateApplicationService.getAllRates();
+
+        // Assert
+        assertEquals(expectedDtos, result);
+    }
+
+    @Test
+    void getLatestRatesForAllCurrencies_returnsMappedRates() {
+        // Arrange
+        List<ExchangeRate> rates = List.of(new ExchangeRate());
+        List<ExchangeRateDTO> expectedDtos = List.of(
+                new ExchangeRateDTO("USD", LocalDate.of(2026, 1, 5), new BigDecimal("1.10")));
+
+        when(exchangeRateRepository.findLatestRatesForAllCurrencies()).thenReturn(rates);
+        when(exchangeRateMapper.toDTOList(rates)).thenReturn(expectedDtos);
+
+        // Act
+        List<ExchangeRateDTO> result = exchangeRateApplicationService.getLatestRatesForAllCurrencies();
+
+        // Assert
+        assertEquals(expectedDtos, result);
+    }
+
+    @Test
     void getRatesForCurrency_returnsMappedRates_whenValidRequest() {
         // Arrange
         LocalDate from = LocalDate.of(2026, 1, 1);
@@ -102,12 +137,11 @@ class ExchangeRateApplicationServiceTest {
         // Arrange
         LocalDate from = LocalDate.of(2026, 1, 10);
         LocalDate to = LocalDate.of(2026, 1, 1);
-        when(currencyRepository.existsById("USD")).thenReturn(true);
 
         // Act + Assert
         assertThrows(InvalidDateRangeException.class,
                 () -> exchangeRateApplicationService.getRatesForCurrency("USD", from, to));
-        verifyNoInteractions(exchangeRateRepository);
+        verifyNoInteractions(currencyRepository, exchangeRateRepository);
     }
 
     @Test
@@ -185,14 +219,29 @@ class ExchangeRateApplicationServiceTest {
     }
 
     @Test
-    void convertAmount_throwsCurrencyNotFoundException_whenRateMissing() {
+    void convertAmount_throwsCurrencyNotFoundException_whenCurrencyDoesNotExist() {
         // Arrange
         BigDecimal amount = new BigDecimal("100.00");
         when(exchangeRateRepository.findTopByCurrency_CodeOrderByDateDesc("XYZ"))
                 .thenReturn(Optional.empty());
+        when(currencyRepository.existsById("XYZ")).thenReturn(false);
 
         // Act + Assert
         assertThrows(CurrencyNotFoundException.class,
+                () -> exchangeRateApplicationService.convertAmount("XYZ", "USD", amount));
+        verifyNoInteractions(currencyConverter);
+    }
+
+    @Test
+    void convertAmount_throwsExchangeRateNotFoundException_whenCurrencyExistsButHasNoRate() {
+        // Arrange
+        BigDecimal amount = new BigDecimal("100.00");
+        when(exchangeRateRepository.findTopByCurrency_CodeOrderByDateDesc("XYZ"))
+                .thenReturn(Optional.empty());
+        when(currencyRepository.existsById("XYZ")).thenReturn(true);
+
+        // Act + Assert
+        assertThrows(ExchangeRateNotFoundException.class,
                 () -> exchangeRateApplicationService.convertAmount("XYZ", "USD", amount));
         verifyNoInteractions(currencyConverter);
     }
