@@ -1,23 +1,25 @@
 package lt.fxportal.application.service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lt.fxportal.api.dto.CurrencyDTO;
 import lt.fxportal.application.exception.CurrencyNotFoundException;
 import lt.fxportal.api.mapper.CurrencyMapper;
 import lt.fxportal.application.port.ReferenceDataImporter;
 import lt.fxportal.domain.CurrencyCodes;
-import lt.fxportal.domain.entity.Currency;
 import lt.fxportal.infrastructure.repository.ICurrencyRepository;
 import lt.fxportal.infrastructure.repository.IExchangeRateRepository;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CurrencyApplicationService {
 
     private final ICurrencyRepository currencyRepository;
@@ -44,21 +46,14 @@ public class CurrencyApplicationService {
 
     @Transactional(readOnly = true)
     public List<CurrencyDTO> getCurrenciesWithRates() {
-        List<String> codesWithRates = exchangeRateRepository
+        Set<String> codes = exchangeRateRepository
                 .findLatestRatesForAllCurrencies()
                 .stream()
                 .map(rate -> rate.getCurrency().getCode())
-                .distinct()
-                .toList();
+                .collect(Collectors.toCollection(HashSet::new));
 
-        List<Currency> currencies = currencyRepository.findAllById(codesWithRates);
+        codes.add(CurrencyCodes.BASE_CURRENCY);
 
-        currencyRepository.findById(CurrencyCodes.BASE_CURRENCY).ifPresent(base -> {
-            if (currencies.stream().noneMatch(c -> c.getCode().equals(CurrencyCodes.BASE_CURRENCY))) {
-                currencies.add(base);
-            }
-        });
-
-        return currencyMapper.toDTOList(currencies);
+        return currencyMapper.toDTOList(currencyRepository.findAllById(codes));
     }
 }

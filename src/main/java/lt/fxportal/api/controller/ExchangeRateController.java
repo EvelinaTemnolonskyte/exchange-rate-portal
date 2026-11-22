@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lt.fxportal.application.service.ExchangeRateApplicationService;
 import lt.fxportal.api.dto.CurrencyConversionDTO;
 import lt.fxportal.api.dto.CurrencyConversionRequest;
 import lt.fxportal.api.dto.ExchangeRateDTO;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RestController
 public class ExchangeRateController {
     

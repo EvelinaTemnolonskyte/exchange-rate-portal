@@ -2,7 +2,7 @@ package lt.fxportal.api.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lt.fxportal.application.service.CurrencyApplicationService;
 import lt.fxportal.api.dto.CurrencyDTO;
 
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RestController
 @RequestMapping(value = "/currencies")
 public class CurrencyController {

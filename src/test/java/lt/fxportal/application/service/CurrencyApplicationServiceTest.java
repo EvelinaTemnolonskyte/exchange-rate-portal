@@ -2,11 +2,10 @@ package lt.fxportal.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyIterable;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +34,7 @@ class CurrencyApplicationServiceTest {
     @Mock CurrencyMapper currencyMapper;
     @Mock ReferenceDataImporter referenceDataImporter;
 
-    @Captor ArgumentCaptor<List<Currency>> currenciesCaptor;
+    @Captor ArgumentCaptor<Iterable<String>> codesCaptor;
 
     @InjectMocks CurrencyApplicationService service;
 
@@ -90,42 +89,44 @@ class CurrencyApplicationServiceTest {
     }
 
     @Test
-    void getCurrenciesWithRates_addsBaseCurrencyWhenMissing() {
+    void getCurrenciesWithRates_alwaysRequestsBaseCurrencyCode() {
         // Arrange
         Currency usd = currency("USD");
         Currency eur = currency("EUR");
+        List<Currency> found = List.of(usd, eur);
+        List<CurrencyDTO> dtos = List.of(new CurrencyDTO("USD", "US dollar", "840", 2));
+
         when(exchangeRateRepository.findLatestRatesForAllCurrencies())
                 .thenReturn(List.of(rate(usd)));
-        when(currencyRepository.findAllById(List.of("USD")))
-                .thenReturn(new ArrayList<>(List.of(usd))); 
-        when(currencyRepository.findById("EUR")).thenReturn(Optional.of(eur));
-        when(currencyMapper.toDTOList(anyList())).thenReturn(List.of());
+        when(currencyRepository.findAllById(anyIterable())).thenReturn(found);
+        when(currencyMapper.toDTOList(found)).thenReturn(dtos);
 
         // Act
-        service.getCurrenciesWithRates();
+        List<CurrencyDTO> result = service.getCurrenciesWithRates();
 
         // Assert
-        verify(currencyMapper).toDTOList(currenciesCaptor.capture());
-        assertThat(currenciesCaptor.getValue()).containsExactlyInAnyOrder(usd, eur);
+        verify(currencyRepository).findAllById(codesCaptor.capture());
+        assertThat(codesCaptor.getValue()).containsExactlyInAnyOrder("USD", "EUR");
+        assertThat(result).isEqualTo(dtos);
     }
 
     @Test
-    void getCurrenciesWithRates_doesNotDuplicateBaseCurrency() {
+    void getCurrenciesWithRates_doesNotDuplicateBaseCurrencyCode() {
         // Arrange
         Currency eur = currency("EUR");
+        List<Currency> found = List.of(eur);
+
         when(exchangeRateRepository.findLatestRatesForAllCurrencies())
                 .thenReturn(List.of(rate(eur)));
-        when(currencyRepository.findAllById(List.of("EUR")))
-                .thenReturn(new ArrayList<>(List.of(eur)));
-        when(currencyRepository.findById("EUR")).thenReturn(Optional.of(eur));
-        when(currencyMapper.toDTOList(anyList())).thenReturn(List.of());
+        when(currencyRepository.findAllById(anyIterable())).thenReturn(found);
+        when(currencyMapper.toDTOList(found)).thenReturn(List.of());
 
         // Act
         service.getCurrenciesWithRates();
 
         // Assert
-        verify(currencyMapper).toDTOList(currenciesCaptor.capture());
-        assertThat(currenciesCaptor.getValue()).containsExactly(eur);
+        verify(currencyRepository).findAllById(codesCaptor.capture());
+        assertThat(codesCaptor.getValue()).containsExactly("EUR");
     }
 
     private Currency currency(String code) {

@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lt.fxportal.application.exception.DataImportException;
 import lt.fxportal.application.port.ReferenceDataImporter;
 import lt.fxportal.domain.CurrencyCodes;
@@ -29,7 +29,7 @@ import lt.fxportal.infrastructure.lithuanianbank.dto.CurrencyData;
 import lt.fxportal.infrastructure.lithuanianbank.dto.DailyFxRate;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class LithuanianBankDataImportService implements ReferenceDataImporter {
 
     private static final Logger log = LoggerFactory.getLogger(LithuanianBankDataImportService.class);

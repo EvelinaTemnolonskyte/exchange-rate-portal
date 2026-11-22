@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lt.fxportal.application.exception.CurrencyNotFoundException;
 import lt.fxportal.application.exception.InvalidAmountException;
 import lt.fxportal.application.exception.InvalidDateRangeException;
@@ -25,7 +25,7 @@ import lt.fxportal.api.dto.ExchangeRateDTO;
 
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ExchangeRateApplicationService {
 
     private final IExchangeRateRepository exchangeRateRepository;
